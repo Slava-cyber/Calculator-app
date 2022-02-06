@@ -16,6 +16,10 @@ double form_number(char **str, double *number);
 int priority(char a);
 int digit(char c);
 int operation(char c);
+int symbol(char c);
+int function(char *str);
+double form_function(char **str, int *func);
+
 
 int main() {
 
@@ -104,25 +108,6 @@ int symbol(char c) {
     }
     return result;
 }
-
-char* symbol_form(char *str, int *len, char *factor) {
-    char *tmp = str;
-    int len1 = 0;
-    while (symbol(*tmp)) {
-        *factor = *tmp;
-        //  printf("%c ", *tmp);
-        factor++;
-        len1++;
-        if (*tmp == '(') {
-            break;
-        }
-        tmp++;
-    }
-    *len = len1;
-    *factor = '\0';
-    return factor;
-}
-
 int function(char *str) {
     int result = 0;
     if (strcmp(str, "cos(") == 0)
