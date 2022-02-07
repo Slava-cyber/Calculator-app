@@ -2,118 +2,184 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
-// 0 - (
-// 1 - )
-// 2 - cos
-// 3 - sin
-// 4 - tg
-// 5 - ctg
-// 6 - log
-// 7 - ln
-// 8 - sqrt
+typedef enum {
+    value = -2,
+    x = -1,
+    bracket_left = 0,
+    bracket_right = 1,
+    additional = 2,
+    subtraction = 3,
+    multiplication = 4,
+    division = 5,
+    power = 6,
+    modulus = 7,
+    unary_plus = 8,
+    unary_minus = 9,
+    cosine = 10,
+    sine = 11,
+    tangent = 12,
+    arc_cosine = 13,
+    arc_sine = 14,
+    arc_tangent = 15,
+    square = 16,
+    natural_logarithm = 17,
+    common_logarithm = 18
+} value_type_t;
+
 
 typedef struct stack {
     double value;
-    int operation;
+    value_type_t operation;
+    //int operation;
     struct stack *next;
 } stack;
 
-stack* push(stack *head, double number, int oper);
+void push(stack **head, double number, value_type_t oper);
 stack* pop(stack **head);
 double peek_value(const stack *head);
-double peek_opearation(const stack *head);
+value_type_t peek_operation(const stack *head);
+stack* reverse_stack(stack *first);
+
 
 double form_number(char **str, double *number);
-int priority(char a);
+int prior(value_type_t operation);
 int digit(char c);
-int operation(char c);
+int operation(char c, value_type_t *opearation);
 int symbol(char c);
 int function(char *str);
-double form_function(char **str, int *func);
+double form_function(char **str, value_type_t *func);
 
 
-double parsing(char *str, char *out, stack *value, stack *opers);
+stack* parsing(char *str);
 
 
 int input(char * str);
 
 int main() {
-    stack* opers = NULL;
-    stack* value = NULL;
-    // char str[100] = "lsff+32,35+23,42";
-    // char out[100] = "\0";
+    stack* result = NULL;
+    stack* notation = NULL;
     double number = 0;
     char *str = (char*)malloc(100*sizeof(char));
-    char *out = (char*)malloc(100*sizeof(char));
-    //parsing(str, out, value, opers);
     input(str);
-    int error = form_number(&str, &number);
-    printf("\n");
-    printf("error:%d\nnumber:%f\n", error, number);
-    printf("%s\n", str);
+    printf("str:%s\n", str);
+    notation = parsing(str);
+    printf("|||||||||||||||||\n");
+    result = reverse_stack(notation);
+    while (result != NULL) {
+        printf("%.1f-%d||", peek_value(result), peek_operation(result));
+        pop(&result);
+    }
+
     return 0;
 }
 
-/*double parsing(char *str, char *out, stack *value, stack *opers) {
-    int i = 0, j = 0;
-    while (str[i] != '\0') {
-        if (str[i] == ')') {
-            while ((opers->c) != '(') {
-                out[j] = peek_value(opers);
-                pop(&opers);
-                j++;
+stack* reverse_stack(stack *first) {
+    stack* result = NULL;
+    while (first != NULL) {
+        push(&result, peek_value(first), peek_operation(first));
+        pop(&first);
+    }
+    return result;
+}
+
+stack* parsing(char *str) {
+    int i = 0, error = 0;
+    double number;
+    stack* buffer = NULL;
+    stack* notation = NULL;    
+    char *tmp = str;
+    value_type_t buffer_value_type;
+    while (*tmp != '=' && *tmp != '\0' && !error) {
+        printf("%d-%c\n", tmp, *(tmp));
+        if (*tmp == ')') {
+            while (peek_operation(buffer) != bracket_left && buffer != NULL) {
+                printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
+                push(&notation, peek_value(buffer), peek_operation(buffer));
+                //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
+                pop(&buffer);
             }
-            out[j] = ')';
-            j++;
-            pop(&opers);
-        }
-
-        if ((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'z')) {
-            out[j] = str[i];
-            j++;
-        }
-
-        if (str[i] == '(') {
-            opers = push(opers, '(');
-            out[j] = '(';
-            j++;
-        }
-
-        if (str[i] == '+' || str[i] == '-' || str[i] == '/' || str[i] == '*' || str[i] == '^') {
-            if (opers == NULL) {
-                opers = push(opers, str[i]);
-            } else {
-                if (prior(opers->c) < prior(str[i])) {
-                    opers = push(opers, str[i]);
+            printf("h!!!!!!!!!!!!!s\n");
+            if (buffer == NULL) {
+                error = 1;
+                break;
+            }
+            pop(&buffer);
+            //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
+        } else if (digit(*tmp) > -1) {
+            error = form_number(&tmp, &number);
+            if (error)
+                break;
+            push(&notation, number, value);
+            tmp--;
+            printf("tmp:%s\n", tmp);
+        } else if (*tmp == 'x') {
+            push(&notation, 0.0, x);
+        } else if (*tmp == '(') {
+            push(&buffer, 0.0, bracket_left);
+        } else if (*tmp == '+' && (!i || *(tmp-1) == '(')) {
+            push(&buffer, 0.0, unary_plus);
+        } else if (*tmp == '-' && (!i || *(tmp-1) == '(')) {
+            printf("!!!\n");
+            push(&buffer, 0.0, unary_minus);
+        } else {
+            printf("operation!\n");
+            if (symbol(*tmp) && *tmp != 'x') {
+                if (form_function(&tmp, &buffer_value_type)) {
+                    error = 1;
+                    break;
                 } else {
-                    while (opers != NULL && prior(opers->c) >= prior(str[i])) {
-                        out[j] = peek_value(opers);
-                        pop(&opers);
-                        j++;
+                    //tmp -= 1;
+                }
+            } else if (operation(*tmp, &buffer_value_type) == 0) {
+                error = 1;
+                break;
+            }
+            printf("value:%d\n", buffer_value_type);
+            if (buffer == NULL) {
+                push(&buffer, 0.0, buffer_value_type);
+            } else {
+                if (prior(buffer->operation) < prior(buffer_value_type)) {
+                    push(&buffer, 0.0, buffer_value_type);
+                } else {
+                    while (buffer != NULL && prior(buffer->operation) >= prior(buffer_value_type)) {
+                        push(&notation, 0.0, peek_operation(buffer));
+                        pop(&buffer);
                     }
-                    opers = push(opers, str[i]);
+                    push(&buffer, 0.0, buffer_value_type);
                 }
             }
         }
+        printf("error:%d\n", error);
+        tmp++;
         i++;
+        printf("%d-%c\n", tmp, *tmp);
+        //printf("BUFFER:%d\n", peek_operation(buffer));
     }
-    while (opers != NULL) {
-        out[j] = peek_value(opers);
-        pop(&opers);
-        j++;
+    while (buffer != NULL) {
+        push(&notation, peek_value(buffer), peek_operation(buffer));
+        pop(&buffer);
     }
-    out[j] = '\0';
-    *n = j;
-    return 1;
+    return notation;
+}
+
+/*double calculate(stack* notation, int *error) {
+    double result;
+    stack 
+    return result;
 }*/
+
+
+
 double form_number(char **str, double *number) {
     *number = 0;
+    value_type_t buffer;
     int dig, error = 0;
     while ((dig = digit(**str)) > -1) {
         *number = 10 * *number + dig;
         *str += 1;
-        printf("%d", dig);
+        //printf("%d", dig);
     }
     if (**str == ',') {
         *str += 1;
@@ -121,21 +187,22 @@ double form_number(char **str, double *number) {
             int i = 0;
             while ((dig = digit(**str)) > -1) {
                 i +=1;
-                printf("number:%f\n", dig / pow(10, i));
+                //printf("number:%f\n", dig / pow(10, i));
                 //printf("%d", dig);
                 double buf = dig / pow(10, i);
                 *number += buf;
-                printf("number:%f\n", *number);
+                //printf("number:%f\n", *number);
                 *str += 1;
             }
         } else {
             error = 1;
         }
-    } else if (!operation(**str) && **str != '\0') {
-        error = 1;
-    }
-    printf("number:%f\n", *number);
-    if (!operation(**str) && **str != '\0')
+    } 
+    //else if ((!operation(**str, &buffer) || **str == ')') && **str != '\0') {
+    //    error = 1;
+    //}
+    //printf("number:%f\n", *number);
+    if (!(operation(**str, &buffer) || **str == ')' || **str == '\0'))
         error = 1;
     return error;
 }
@@ -153,17 +220,17 @@ int input(char * str) {
     return 1;
 }
 
-stack* push(stack *head, double number, int oper) {
+void push(stack **head, double number, value_type_t oper) {
     stack *st = malloc(sizeof(stack));
     if (st == NULL) {
         puts("memory fault");
         exit(-1);
         //exit(STACK_OVERFLOW);
     }
+    st->next = *head;
     st->value = number;
     st->operation = oper;
-    st->next = head;
-    return st;
+    *head = st;
 }
 
 stack* pop(stack **head) {
@@ -181,35 +248,26 @@ double peek_value(const stack *head) {
     return head->value;
 }
 
-double peek_opearation(const stack *head) {
+value_type_t peek_operation(const stack *head) {
     if (head == NULL)
         exit(-1);
     return head->operation;
 }
 
-int priority(char a) {
-    int flag;
-    switch (a) {
-        case '^': {
-            flag = 4;
-            break;
-        }
-        case '*': case '/': {
-            flag = 3;
-            break;
-        }
-        case '+': case '-': {
-            flag = 2;
-            break;
-        }
-        case '(': {
-            flag = 1;
-            break;
-        }
-        case 'c': {
-            flag = 0;
-            break;
-        }
+int prior(value_type_t operation) {
+    int flag = 0;
+    if (operation == bracket_left) {
+        flag = 0;
+    } else if (operation == additional || operation == subtraction) {
+        flag = 1;
+    } else if (operation == multiplication || operation == division || operation == modulus)  {
+        flag = 2;
+    } else if (operation == power) {
+        flag = 3;
+    } else if (operation == unary_minus || operation == unary_plus) {
+        flag = 4;
+    } else {
+        flag = 5;
     }
     return flag;
 }
@@ -221,10 +279,20 @@ int digit(char c) {
     return result;
 }
 
-int operation(char c) {
+int operation(char c, value_type_t *opearation) {
     int result = 0;
     if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^')
         result = 1;
+    if (c == '+')
+        *opearation = 2;
+    if (c == '-')
+       *opearation = 3;
+    if (c == '*')
+        *opearation = 4;
+    if (c == '/')
+        *opearation = 5;
+    if (c == '^')
+        *opearation = 6;
     return result;
 }
 
@@ -235,25 +303,30 @@ int symbol(char c) {
     }
     return result;
 }
-
 int function(char *str) {
     int result = 0;
     if (strcmp(str, "cos(") == 0)
-        result = 1;
+        result = 10;
     if (strcmp(str, "sin(") == 0)
-        result = 2;
+        result = 11;
     if (strcmp(str, "tan(") == 0)
-        result = 3;
-    if (strcmp(str, "ctg(") == 0)
-        result = 4;
-    if (strcmp(str, "log(") == 0)
-        result = 5;
+        result = 12;
+    if (strcmp(str, "acos(") == 0)
+        result = 13;
+    if (strcmp(str, "asin(") == 0)
+        result = 14;
+    if (strcmp(str, "atan(") == 0)
+        result = 15;
     if (strcmp(str, "sqrt(") == 0)
-        result = 6;
+        result = 16;
+    if (strcmp(str, "log(") == 0)
+        result = 17;
+    if (strcmp(str, "ln(") == 0)
+        result = 18;
     return result;
 }
 
-double form_function(char **str, int *func) {
+double form_function(char **str, value_type_t *func) {
     char *factor = (char*)malloc(10 * sizeof(char));
     int error = 0;
     while (symbol(**str)) {
