@@ -130,7 +130,7 @@ stack* parsing(char *str) {
                     error = 1;
                     break;
                 } else {
-                    //tmp -= 1;
+                    tmp -= 1;
                 }
             } else if (operation(*tmp, &buffer_value_type) == 0) {
                 error = 1;
@@ -304,6 +304,7 @@ int symbol(char c) {
     return result;
 }
 int function(char *str) {
+    printf("strfactor:%s\n", str);
     int result = 0;
     if (strcmp(str, "cos(") == 0)
         result = 10;
@@ -327,19 +328,26 @@ int function(char *str) {
 }
 
 double form_function(char **str, value_type_t *func) {
-    char *factor = (char*)malloc(10 * sizeof(char));
-    int error = 0;
-    while (symbol(**str)) {
-        *factor = **str;
-        factor++;
+    //char *factor = (char*)malloc(10 * sizeof(char));
+    char factor[10] = "\0";
+    int error = 0, i = 0;;
+    printf("symbol:%c\n", **str);
+    while (symbol(**str) && i < 5) {
+        factor[i] = **str;
+        i++;
+        //factor += 1;
         if (**str == '(')
             break;
         *str += 1;
     }
-    *factor = '\0';
+    factor[i] = '\0';
+    //factor = factor - 2;
+    //strcpy(factor, factor1);
+    printf("factor:%s\n", factor);
     if (!(*func = function(factor)))
         error = 1;
-    free(factor);
+    printf("error:%d\n", error);
+    //free(factor);
     return error;
 }
 
