@@ -53,25 +53,29 @@ double form_function(char **str, value_type_t *func);
 
 
 stack* parsing(char *str);
+int calculate(stack* notation, double *result);
 
+double action_two_arguments(stack **value, value_type_t operation);
+double action_one_arguments(stack **value, value_type_t operation);
 
 int input(char * str);
 
 int main() {
     stack* result = NULL;
     stack* notation = NULL;
-    double number = 0;
+    double number = 0, answer;
     char *str = (char*)malloc(100*sizeof(char));
     input(str);
     printf("str:%s\n", str);
     notation = parsing(str);
-    printf("|||||||||||||||||\n");
+    printf("\n|||||||||||||||||\n");
     result = reverse_stack(notation);
-    while (result != NULL) {
-        printf("%.1f-%d||", peek_value(result), peek_operation(result));
-        pop(&result);
-    }
-
+    calculate(result, &answer);
+    // while (result != NULL) {
+    //     printf("%.1f-%d||", peek_value(result), peek_operation(result));
+    //     pop(&result);
+    // }
+    printf("answer:%f\n", answer);
     return 0;
 }
 
@@ -92,7 +96,7 @@ stack* parsing(char *str) {
     char *tmp = str;
     value_type_t buffer_value_type;
     while (*tmp != '=' && *tmp != '\0' && !error) {
-        printf("%d-%c\n", tmp, *(tmp));
+        //printf("%d-%c\n", tmp, *(tmp));
         if (*tmp == ')') {
             while (peek_operation(buffer) != bracket_left && buffer != NULL) {
                 printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
@@ -100,7 +104,7 @@ stack* parsing(char *str) {
                 //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
                 pop(&buffer);
             }
-            printf("h!!!!!!!!!!!!!s\n");
+            //printf("h!!!!!!!!!!!!!s\n");
             if (buffer == NULL) {
                 error = 1;
                 break;
@@ -113,7 +117,7 @@ stack* parsing(char *str) {
                 break;
             push(&notation, number, value);
             tmp--;
-            printf("tmp:%s\n", tmp);
+            //printf("tmp:%s\n", tmp);
         } else if (*tmp == 'x') {
             push(&notation, 0.0, x);
         } else if (*tmp == '(') {
@@ -121,10 +125,10 @@ stack* parsing(char *str) {
         } else if (*tmp == '+' && (!i || *(tmp-1) == '(')) {
             push(&buffer, 0.0, unary_plus);
         } else if (*tmp == '-' && (!i || *(tmp-1) == '(')) {
-            printf("!!!\n");
+            //printf("!!!\n");
             push(&buffer, 0.0, unary_minus);
         } else {
-            printf("operation!\n");
+            //printf("operation!\n");
             if (symbol(*tmp) && *tmp != 'x') {
                 if (form_function(&tmp, &buffer_value_type)) {
                     error = 1;
@@ -136,7 +140,7 @@ stack* parsing(char *str) {
                 error = 1;
                 break;
             }
-            printf("value:%d\n", buffer_value_type);
+            //printf("value:%d\n", buffer_value_type);
             if (buffer == NULL) {
                 push(&buffer, 0.0, buffer_value_type);
             } else {
@@ -151,10 +155,10 @@ stack* parsing(char *str) {
                 }
             }
         }
-        printf("error:%d\n", error);
+        //printf("error:%d\n", error);
         tmp++;
         i++;
-        printf("%d-%c\n", tmp, *tmp);
+        //printf("%d-%c\n", tmp, *tmp);
         //printf("BUFFER:%d\n", peek_operation(buffer));
     }
     while (buffer != NULL) {
@@ -164,12 +168,84 @@ stack* parsing(char *str) {
     return notation;
 }
 
-/*double calculate(stack* notation, int *error) {
-    double result;
-    stack 
-    return result;
-}*/
+int calculate(stack* notation, double *result) {
+    int error = 0;
+    stack *value;
+    while (notation != NULL) {
+        //printf("k");
+        value_type_t operation = peek_operation(notation);
+        //printf("operation:%d\n", operation);
+        if (operation == -2 || operation == -1) {
+            //printf("p");
+            push(&value, peek_value(notation), operation);
+        } else if (operation >= 2 && operation < 8) {
+            action_two_arguments(&value, operation);
+        } else {
+            action_one_arguments(&value, operation);
+        }
+        //printf("value:%f||", peek_value(value));
+        pop(&notation);
+    }
+    *result = peek_value(value);
+    //printf("result:%f\n", *result);
+    pop(&value);
+    if (value != NULL) {
+        error = 1;
+    }
+    return error;
+}
 
+double action_two_arguments(stack **value, value_type_t operation) {
+    double number1, number2, result;
+    number1 = peek_value(*value);
+    pop(value);
+    number2 = peek_value(*value);
+    pop(value);
+    if (operation == additional) {
+        result = number1 + number2;
+    } else if (operation == subtraction) {
+        result = number2 - number1;
+    } else if (operation == multiplication) {
+        result = number1 * number2;
+    } else if (operation == division) {
+        result = number2 / number1;
+    } else if (operation == power) {
+        result = pow(number2 * 1.0, number1 * 1.0); 
+    } else if (operation == modulus) {
+        result = fmod(number2, number1);
+    }
+    push(value, result, -2);
+    return result;
+}
+
+double action_one_arguments(stack **value, value_type_t operation) {
+    double number, result;
+    number = peek_value(*value);
+    pop(value);
+    if (operation == unary_minus) {
+        result = number * (-1);
+    } else if (operation == cosine) {
+        result = cos(number);
+    } else if (operation == sine) {
+        result = sin(number);
+    } else if (operation == tangent) {
+        result = tan(x); 
+    } else if (operation == arc_cosine) {
+        result = acos(number);
+    } else if (operation == arc_sine) {
+        result = asin(number);
+    } else if (operation == arc_tangent) {
+        result = atan(number);
+    } else if (operation == square) {
+        result = sqrt(number);
+    } else if (operation == natural_logarithm) {
+        result = log(number);
+    } else if (operation == common_logarithm) {
+        result = log10(number);
+    }
+    push(value, result, -2);
+    return result;
+}
 
 
 double form_number(char **str, double *number) {
