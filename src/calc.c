@@ -1,64 +1,4 @@
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-
-typedef enum {
-    value = -2,
-    x = -1,
-    bracket_left = 0,
-    bracket_right = 1,
-    additional = 2,
-    subtraction = 3,
-    multiplication = 4,
-    division = 5,
-    power = 6,
-    modulus = 7,
-    unary_plus = 8,
-    unary_minus = 9,
-    cosine = 10,
-    sine = 11,
-    tangent = 12,
-    arc_cosine = 13,
-    arc_sine = 14,
-    arc_tangent = 15,
-    square = 16,
-    natural_logarithm = 17,
-    common_logarithm = 18
-} value_type_t;
-
-
-typedef struct stack {
-    double value;
-    value_type_t operation;
-    //int operation;
-    struct stack *next;
-} stack;
-
-void push(stack **head, double number, value_type_t oper);
-stack* pop(stack **head);
-double peek_value(const stack *head);
-value_type_t peek_operation(const stack *head);
-stack* reverse_stack(stack *first);
-
-
-double form_number(char **str, double *number);
-int prior(value_type_t operation);
-int digit(char c);
-int operation(char c, value_type_t *opearation);
-int symbol(char c);
-int function(char *str);
-double form_function(char **str, value_type_t *func);
-
-
-stack* parsing(char *str, int *error);
-int calculate(stack* notation, double *result);
-
-double action_two_arguments(stack **value, value_type_t operation);
-double action_one_arguments(stack **value, value_type_t operation);
-
-int input(char * str);
+#include "calc.h"
 
 int main() {
     stack* result = NULL;
@@ -73,11 +13,11 @@ int main() {
     //printf("error:%d\n", error);
     printf("\n|||||||||||||||||\n");
     result = reverse_stack(notation);
-    //int error = calculate(result, &answer);
-    while (result != NULL) {
-        printf("%.1f-%d||", peek_value(result), peek_operation(result));
-        pop(&result);
-    }
+    error = calculate(result, &answer);
+    // while (result != NULL) {
+    //     printf("%.1f-%d||", peek_value(result), peek_operation(result));
+    //     pop(&result);
+    // }
     printf("answer:%f\n", answer);
     //printf("error:%d\n", error);
     return 0;
@@ -363,20 +303,22 @@ int digit(char c) {
     return result;
 }
 
-int operation(char c, value_type_t *opearation) {
+int operation(char c, value_type_t *operation) {
     int result = 0;
-    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^')
+    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '%')
         result = 1;
     if (c == '+')
-        *opearation = 2;
+        *operation = 2;
     if (c == '-')
-       *opearation = 3;
+       *operation = 3;
     if (c == '*')
-        *opearation = 4;
+        *operation = 4;
     if (c == '/')
-        *opearation = 5;
+        *operation = 5;
     if (c == '^')
-        *opearation = 6;
+        *operation = 6;
+    if (c == '%')
+        *operation = 7;
     return result;
 }
 
@@ -434,4 +376,3 @@ double form_function(char **str, value_type_t *func) {
     //free(factor);
     return error;
 }
-
