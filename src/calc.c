@@ -52,7 +52,7 @@ int function(char *str);
 double form_function(char **str, value_type_t *func);
 
 
-stack* parsing(char *str);
+stack* parsing(char *str, int *error);
 int calculate(stack* notation, double *result);
 
 double action_two_arguments(stack **value, value_type_t operation);
@@ -65,17 +65,21 @@ int main() {
     stack* notation = NULL;
     double number = 0, answer;
     char *str = (char*)malloc(100*sizeof(char));
+    int error;
     input(str);
     printf("str:%s\n", str);
-    notation = parsing(str);
+    notation = parsing(str, &error);
+        //printf("answer:%f\n", answer);
+    //printf("error:%d\n", error);
     printf("\n|||||||||||||||||\n");
     result = reverse_stack(notation);
-    calculate(result, &answer);
-    // while (result != NULL) {
-    //     printf("%.1f-%d||", peek_value(result), peek_operation(result));
-    //     pop(&result);
-    // }
+    //int error = calculate(result, &answer);
+    while (result != NULL) {
+        printf("%.1f-%d||", peek_value(result), peek_operation(result));
+        pop(&result);
+    }
     printf("answer:%f\n", answer);
+    //printf("error:%d\n", error);
     return 0;
 }
 
@@ -88,14 +92,15 @@ stack* reverse_stack(stack *first) {
     return result;
 }
 
-stack* parsing(char *str) {
-    int i = 0, error = 0;
+stack* parsing(char *str, int *error) {
+    int i = 0;
+    *error = 0;
     double number;
     stack* buffer = NULL;
     stack* notation = NULL;    
     char *tmp = str;
     value_type_t buffer_value_type;
-    while (*tmp != '=' && *tmp != '\0' && !error) {
+    while (*tmp != '=' && *tmp != '\0' && !*error) {
         //printf("%d-%c\n", tmp, *(tmp));
         if (*tmp == ')') {
             while (peek_operation(buffer) != bracket_left && buffer != NULL) {
@@ -106,14 +111,14 @@ stack* parsing(char *str) {
             }
             //printf("h!!!!!!!!!!!!!s\n");
             if (buffer == NULL) {
-                error = 1;
+                *error = 1;
                 break;
             }
             pop(&buffer);
             //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
         } else if (digit(*tmp) > -1) {
-            error = form_number(&tmp, &number);
-            if (error)
+            *error = form_number(&tmp, &number);
+            if (*error)
                 break;
             push(&notation, number, value);
             tmp--;
@@ -131,13 +136,13 @@ stack* parsing(char *str) {
             //printf("operation!\n");
             if (symbol(*tmp) && *tmp != 'x') {
                 if (form_function(&tmp, &buffer_value_type)) {
-                    error = 1;
+                    *error = 1;
                     break;
                 } else {
                     tmp -= 1;
                 }
             } else if (operation(*tmp, &buffer_value_type) == 0) {
-                error = 1;
+                *error = 1;
                 break;
             }
             //printf("value:%d\n", buffer_value_type);
@@ -155,12 +160,13 @@ stack* parsing(char *str) {
                 }
             }
         }
-        //printf("error:%d\n", error);
+        // printf("errorrrrr:%d\n", *error);
         tmp++;
         i++;
         //printf("%d-%c\n", tmp, *tmp);
         //printf("BUFFER:%d\n", peek_operation(buffer));
     }
+    //printf("errorrrrrrs:%d\n", *error);
     while (buffer != NULL) {
         push(&notation, peek_value(buffer), peek_operation(buffer));
         pop(&buffer);
@@ -171,6 +177,7 @@ stack* parsing(char *str) {
 int calculate(stack* notation, double *result) {
     int error = 0;
     stack *value;
+    printf("tut\n");
     while (notation != NULL) {
         //printf("k");
         value_type_t operation = peek_operation(notation);
@@ -192,6 +199,7 @@ int calculate(stack* notation, double *result) {
     if (value != NULL) {
         error = 1;
     }
+    printf("errorin:%d\n", error);
     return error;
 }
 
