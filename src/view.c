@@ -64,8 +64,8 @@ void one_char_operation(char *str, char *value, int *point) {
             }
         }
         push_char(str, value, point);
-    } else if (value[0] == ',') {
-        g_print(",!");
+    } else if (value[0] == '.') {
+        //g_print("!");
         if (*point != 0) {
             if (str[*point - 1] >= '0' && str[*point - 1] <= '9')
                 push_char(str, value, point);
@@ -102,7 +102,7 @@ void button_clicked(GtkWidget *button) {
     strcpy(value, gtk_button_get_label((GtkButton*)button));
     if (strcmp(value, "=") == 0) {
         if (strlen(str) != 0)
-            run(str);
+            run(str, &point);
     } else if (strlen(value) == 1) {
         g_print("digits\n");
         one_char_operation(str, value, &point);
@@ -114,12 +114,14 @@ void button_clicked(GtkWidget *button) {
     } else {
         many_char_operation(str, value, &point);
     }
+    g_print("str:%s\n", str);
+    g_print("strlen:%d\n", strlen(str));
     gtk_label_set_label((GtkLabel*)label, str);
 }
 
 
 void create_digit_button(GtkWidget **buttonDigits, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
-    char* title[11] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ","};
+    char* title[11] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "."};
     int positionX = width - 4 * SizeButton - 3 * SizeSpace;
     int positionY = height - 4 * SizeButton - 3 * SizeSpace;
     GtkWidget *button;

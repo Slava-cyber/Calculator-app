@@ -29,10 +29,10 @@ int str_zero(char *str) {
     return 1;
 }
 
-int run(char *str) {
+int run(char *str, int *point) {
     stack* result = NULL;
     stack* notation = NULL;
-    int error = 0, point = 0;
+    int error = 0;
     double answer;
     notation = parsing(str, &error);
     printf("\nerror1:%d\n", error);
@@ -47,6 +47,7 @@ int run(char *str) {
     } else {
         str_zero(str);
         sprintf(str, "%f", answer);
+        *point = strlen(str);
     }
     return 1;
 }
@@ -263,7 +264,7 @@ double form_number(char **str, double *number) {
         *str += 1;
         //printf("%d", dig);
     }
-    if (**str == ',') {
+    if (**str == '.') {
         *str += 1;
         if ((dig = digit(**str)) > -1) {
             int i = 0;
