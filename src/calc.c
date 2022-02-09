@@ -41,13 +41,13 @@ int run(char *str) {
         error = calculate(result, &answer);
     } 
     printf("\nerror2:%d\n", error);
-    // if (error) {
-    //     str_zero(str);
-    //     strcpy(str, "error");
-    // } else {
+    if (error) {
+        str_zero(str);
+        strcpy(str, "error");
+    } else {
         str_zero(str);
         sprintf(str, "%f", answer);
-    // }
+    }
     return 1;
 }
 
@@ -62,7 +62,7 @@ stack* reverse_stack(stack *first) {
 }
 
 stack* parsing(char *str, int *error) {
-    int i = 0;
+    int i = 0, left_bracket = 0, right_bracket = 0;
     *error = 0;
     double number;
     stack* buffer = NULL;
@@ -72,18 +72,21 @@ stack* parsing(char *str, int *error) {
     while (*tmp != '=' && *tmp != '\0' && !*error) {
         //printf("%d-%c\n", tmp, *(tmp));
         if (*tmp == ')') {
+            right_bracket += 1;
             while (peek_operation(buffer) != bracket_left && buffer != NULL) {
                 printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
                 push(&notation, peek_value(buffer), peek_operation(buffer));
                 //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
                 pop(&buffer);
+                if (buffer == NULL) {
+                    *error = 1;
+                    break;
+                }
             }
             //printf("h!!!!!!!!!!!!!s\n");
-            if (buffer == NULL) {
-                *error = 1;
-                break;
-            }
-            pop(&buffer);
+
+            if (*error != 1)
+                pop(&buffer);
             //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
         } else if (digit(*tmp) > -1) {
             *error = form_number(&tmp, &number);
@@ -95,6 +98,7 @@ stack* parsing(char *str, int *error) {
         } else if (*tmp == 'x') {
             push(&notation, 0.0, x);
         } else if (*tmp == '(') {
+            left_bracket += 1;
             push(&buffer, 0.0, bracket_left);
         } else if (*tmp == '+' && (!i || *(tmp-1) == '(')) {
             push(&buffer, 0.0, unary_plus);
@@ -135,6 +139,8 @@ stack* parsing(char *str, int *error) {
         //printf("%d-%c\n", tmp, *tmp);
         //printf("BUFFER:%d\n", peek_operation(buffer));
     }
+    if (left_bracket != right_bracket)
+        *error = 1;
     //printf("errorrrrrrs:%d\n", *error);
     while (buffer != NULL) {
         push(&notation, peek_value(buffer), peek_operation(buffer));
