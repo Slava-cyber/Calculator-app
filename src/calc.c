@@ -10,7 +10,7 @@ int main() {
     printf("str:%s\n", str);
     notation = parsing(str, &error);
         //printf("answer:%f\n", answer);
-    //printf("error:%d\n", error);
+    printf("error:%d\n", error);
     printf("\n|||||||||||||||||\n");
     result = reverse_stack(notation);
     error = calculate(result, &answer);
@@ -19,7 +19,7 @@ int main() {
     //     pop(&result);
     // }
     printf("answer:%f\n", answer);
-    //printf("error:%d\n", error);
+    printf("error:%d\n", error);
     return 0;
 }
 
@@ -118,80 +118,101 @@ int calculate(stack* notation, double *result) {
     int error = 0;
     stack *value;
     printf("tut\n");
-    while (notation != NULL) {
-        //printf("k");
+    while (notation != NULL && error == 0) {
+        printf("k");
         value_type_t operation = peek_operation(notation);
         //printf("operation:%d\n", operation);
         if (operation == -2 || operation == -1) {
             //printf("p");
             push(&value, peek_value(notation), operation);
         } else if (operation >= 2 && operation < 8) {
-            action_two_arguments(&value, operation);
+            action_two_arguments(&value, operation, &error);
+            //printf("errorin:%d", error);
         } else {
-            action_one_arguments(&value, operation);
+            action_one_arguments(&value, operation, &error);
         }
+        if (error)
+            break;
         //printf("value:%f||", peek_value(value));
         pop(&notation);
     }
-    *result = peek_value(value);
+    if (!error) {
+        *result = peek_value(value);
     //printf("result:%f\n", *result);
-    pop(&value);
-    if (value != NULL) {
-        error = 1;
+        pop(&value);
+        if (value != NULL) {
+            error = 1;
+        }
     }
     printf("errorin:%d\n", error);
     return error;
 }
 
-double action_two_arguments(stack **value, value_type_t operation) {
+double action_two_arguments(stack **value, value_type_t operation, int *error) {
     double number1, number2, result;
-    number1 = peek_value(*value);
-    pop(value);
-    number2 = peek_value(*value);
-    pop(value);
-    if (operation == additional) {
-        result = number1 + number2;
-    } else if (operation == subtraction) {
-        result = number2 - number1;
-    } else if (operation == multiplication) {
-        result = number1 * number2;
-    } else if (operation == division) {
-        result = number2 / number1;
-    } else if (operation == power) {
-        result = pow(number2 * 1.0, number1 * 1.0); 
-    } else if (operation == modulus) {
-        result = fmod(number2, number1);
+    if (*value != NULL) {
+        number1 = peek_value(*value);
+        pop(value);
+    } else { 
+        *error = 1;
     }
-    push(value, result, -2);
+    if (*value != NULL) {
+        number2 = peek_value(*value);
+        pop(value);
+    } else {
+        *error = 1;
+    }
+    if (*error != 1) {
+        if (operation == additional) {
+            result = number1 + number2;
+        } else if (operation == subtraction) {
+            result = number2 - number1;
+        } else if (operation == multiplication) {
+            result = number1 * number2;
+        } else if (operation == division) {
+            result = number2 / number1;
+        } else if (operation == power) {
+            result = pow(number2 * 1.0, number1 * 1.0); 
+        } else if (operation == modulus) {
+            result = fmod(number2, number1);
+        }
+        push(value, result, -2);
+    }
     return result;
 }
 
-double action_one_arguments(stack **value, value_type_t operation) {
+double action_one_arguments(stack **value, value_type_t operation, int *error) {
     double number, result;
-    number = peek_value(*value);
-    pop(value);
-    if (operation == unary_minus) {
-        result = number * (-1);
-    } else if (operation == cosine) {
-        result = cos(number);
-    } else if (operation == sine) {
-        result = sin(number);
-    } else if (operation == tangent) {
-        result = tan(x); 
-    } else if (operation == arc_cosine) {
-        result = acos(number);
-    } else if (operation == arc_sine) {
-        result = asin(number);
-    } else if (operation == arc_tangent) {
-        result = atan(number);
-    } else if (operation == square) {
-        result = sqrt(number);
-    } else if (operation == natural_logarithm) {
-        result = log(number);
-    } else if (operation == common_logarithm) {
-        result = log10(number);
+    if (*value != NULL) {
+        number = peek_value(*value);
+        pop(value);
+    } else {
+        *error = 1;
     }
-    push(value, result, -2);
+    if (*error != 1) {
+        if (operation == unary_minus) {
+            result = number * (-1);
+        } else if (operation == cosine) {
+            result = cos(number);
+        } else if (operation == sine) {
+            result = sin(number);
+        } else if (operation == tangent) {
+            result = tan(x); 
+        } else if (operation == arc_cosine) {
+            result = acos(number);
+        } else if (operation == arc_sine) {
+            result = asin(number);
+        } else if (operation == arc_tangent) {
+            result = atan(number);
+        } else if (operation == square) {
+            result = sqrt(number);
+        } else if (operation == natural_logarithm) {
+            result = log(number);
+        } else if (operation == common_logarithm) {
+            result = log10(number);
+        }
+        push(value, result, -2);
+    }
     return result;
 }
 

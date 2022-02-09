@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <string.h>
 
 #include <gtk/gtk.h>
 
@@ -60,14 +61,13 @@ double form_function(char **str, value_type_t *func);
 stack* parsing(char *str, int *error);
 int calculate(stack* notation, double *result);
 
-double action_two_arguments(stack **value, value_type_t operation);
-double action_one_arguments(stack **value, value_type_t operation);
+double action_two_arguments(stack **value, value_type_t operation, int *error);
+double action_one_arguments(stack **value, value_type_t operation, int *error);
 
 int input(char * str);
 
 
     // view
 void init(int argc, char *argv[]);
-
 
 #endif  // SRC_CALC_H
