@@ -56,7 +56,8 @@ int operation(char c, value_type_t *operation);
 int symbol(char c);
 int function(char *str);
 double form_function(char **str, value_type_t *func);
-
+int run(char *str);
+int str_zero(char *str);
 
 stack* parsing(char *str, int *error);
 int calculate(stack* notation, double *result);

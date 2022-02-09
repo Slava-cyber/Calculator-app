@@ -1,27 +1,56 @@
 #include "calc.h"
 
-int main() {
+// int main() {
+//     stack* result = NULL;
+//     stack* notation = NULL;
+//     double number = 0, answer;
+//     char *str = (char*)malloc(100*sizeof(char));
+//     int error;
+//     input(str);
+//     printf("str:%s\n", str);
+//     notation = parsing(str, &error);
+//         //printf("answer:%f\n", answer);
+//     printf("error:%d\n", error);
+//     printf("\n|||||||||||||||||\n");
+//     result = reverse_stack(notation);
+//     error = calculate(result, &answer);
+//     // while (result != NULL) {
+//     //     printf("%.1f-%d||", peek_value(result), peek_operation(result));
+//     //     pop(&result);
+//     // }
+//     printf("answer:%f\n", answer);
+//     printf("error:%d\n", error);
+//     return 0;
+// }
+
+int str_zero(char *str) {
+    for (int i = 0; i < 500; i++)
+        str[i] = '\0';
+    return 1;
+}
+
+int run(char *str) {
     stack* result = NULL;
     stack* notation = NULL;
-    double number = 0, answer;
-    char *str = (char*)malloc(100*sizeof(char));
-    int error;
-    input(str);
-    printf("str:%s\n", str);
+    int error = 0, point = 0;
+    double answer;
     notation = parsing(str, &error);
-        //printf("answer:%f\n", answer);
-    printf("error:%d\n", error);
-    printf("\n|||||||||||||||||\n");
-    result = reverse_stack(notation);
-    error = calculate(result, &answer);
-    // while (result != NULL) {
-    //     printf("%.1f-%d||", peek_value(result), peek_operation(result));
-    //     pop(&result);
+    printf("\nerror1:%d\n", error);
+    if (!error) {
+        result = reverse_stack(notation);
+        error = calculate(result, &answer);
+    } 
+    printf("\nerror2:%d\n", error);
+    // if (error) {
+    //     str_zero(str);
+    //     strcpy(str, "error");
+    // } else {
+        str_zero(str);
+        sprintf(str, "%f", answer);
     // }
-    printf("answer:%f\n", answer);
-    printf("error:%d\n", error);
-    return 0;
+    return 1;
 }
+
 
 stack* reverse_stack(stack *first) {
     stack* result = NULL;
@@ -116,7 +145,7 @@ stack* parsing(char *str, int *error) {
 
 int calculate(stack* notation, double *result) {
     int error = 0;
-    stack *value;
+    stack *value = NULL;
     printf("tut\n");
     while (notation != NULL && error == 0) {
         printf("k");
@@ -127,6 +156,7 @@ int calculate(stack* notation, double *result) {
             push(&value, peek_value(notation), operation);
         } else if (operation >= 2 && operation < 8) {
             action_two_arguments(&value, operation, &error);
+            printf("errorcalc:%d\n", error);
             //printf("errorin:%d", error);
         } else {
             action_one_arguments(&value, operation, &error);
@@ -141,6 +171,7 @@ int calculate(stack* notation, double *result) {
     //printf("result:%f\n", *result);
         pop(&value);
         if (value != NULL) {
+            printf("tuterror%f\n", peek_value(value));
             error = 1;
         }
     }
