@@ -53,7 +53,7 @@ char *delete_char(char *first, int *point) {
     g_print("new:%s", str);
 }*/
 
-void one_char_opeartion(char *str, char *value, int *point) {
+void one_char_operation(char *str, char *value, int *point) {
     char buffer[2] = "\0\0";
     if ((value[0] >= '0' && value[0] <= '9') || value[0] == 'x') {
         if (*point != 0) {
@@ -82,19 +82,39 @@ void one_char_opeartion(char *str, char *value, int *point) {
     }
 }
 
+void many_char_operation(char *str, char *value, int *point) {
+    char buffer[2] = "\0\0";
+    if (*point != 0) {
+        if (str[*point - 1] != '+' && str[*point - 1] != '-' && str[*point - 1] != '*' &&
+            str[*point - 1] != '/' && str[*point - 1] != '^' && str[*point - 1] != '%' && str[*point - 1] != '(') {
+            buffer[0] = '*';
+            push_char(str, buffer, point);
+        }
+    }
+    push_char(str, value, point);
+    buffer[0] = '(';
+    push_char(str, buffer, point);
+}
+
 void button_clicked(GtkWidget *button) {
     char value[5] = "\0\0\0\0\0";
     strcpy(value, gtk_button_get_label((GtkButton*)button));
-    if (strlen(value) == 1) {
+    //g_print("value:%s", value);
+    if (strcmp(value, "=") == 0) {
+       //g_print("w");
+    } else if (strlen(value) == 1) {
         g_print("tut");
         g_print("value:%s", value);
-        one_char_opeartion(str, value, &point);
-    } else if (strlen(value) == 2) {
+        one_char_operation(str, value, &point);
+    } else if (strlen(value) == 2 && strcmp(value, "AC") == 0) {
         delete_char(str, &point);
+    } else if (strcmp(value, "+/-") == 0) {
+        //printf("t3");
     } else {
-
+        g_print("!!!!!\n");
+        many_char_operation(str, value, &point);
     }
-    g_print("str:%s", str);
+    //g_print("str:%s", str);
     gtk_label_set_label((GtkLabel*)label, str);
 }
 
@@ -125,6 +145,7 @@ void create_function_button(GtkWidget **buttonFunctions, int width, int height, 
     GtkWidget *button;
     for (int i = 0; i < 9; i++) {
         button = gtk_button_new_with_label(title[i]);
+        g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_clicked), NULL);
         gtk_widget_set_size_request(button, SizeButton, SizeButton);
         gtk_fixed_put(GTK_FIXED(fixed), button, positionX, positionY);
         buttonFunctions[i] = button;
