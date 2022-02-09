@@ -101,14 +101,16 @@ void button_clicked(GtkWidget *button) {
     char value[5] = "\0\0\0\0\0";
     strcpy(value, gtk_button_get_label((GtkButton*)button));
     if (strcmp(value, "=") == 0) {
-        run(str);
+        if (strlen(str) != 0)
+            run(str);
     } else if (strlen(value) == 1) {
         g_print("digits\n");
         one_char_operation(str, value, &point);
     } else if (strlen(value) == 2 && strcmp(value, "AC") == 0) {
         delete_char(str, &point);
     } else if (strlen(value) == 2 && strcmp(value, "EC") == 0) {
-        //str_zero(str);
+        str_zero(str);
+        point = 0;
     } else {
         many_char_operation(str, value, &point);
     }
