@@ -1,8 +1,7 @@
 #include "calc.h"
 
-void create_digit_button(GtkWidget **buttonDigits, int width, int height, GtkWidget *fixed) {
+void create_digit_button(GtkWidget **buttonDigits, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
     char* title[11] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ","};
-    int SizeButton = 60, SizeSpace = 4;
     int positionX = width - 4 * SizeButton - 3 * SizeSpace;
     int positionY = height - 4 * SizeButton - 3 * SizeSpace;
     GtkWidget *button;
@@ -19,9 +18,8 @@ void create_digit_button(GtkWidget **buttonDigits, int width, int height, GtkWid
     }
 }
 
-void create_function_button(GtkWidget **buttonFunctions, int width, int height, GtkWidget *fixed) {
+void create_function_button(GtkWidget **buttonFunctions, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
     char* title[9] = {"cos", "sin", "tan", "acos", "asin", "atan", "sqrt", "ln", "log"};
-    int SizeButton = 60, SizeSpace = 4;
     int positionX = width - 7 * SizeButton - 6 * SizeSpace;
     int positionY = height - 3 * SizeButton - 2 * SizeSpace;
     GtkWidget *button;
@@ -38,9 +36,8 @@ void create_function_button(GtkWidget **buttonFunctions, int width, int height, 
     }
 }
 
-void create_operation_button(GtkWidget **buttonOperations, int width, int height, GtkWidget *fixed) {
+void create_operation_button(GtkWidget **buttonOperations, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
     char* title[7] = {"+/-", "^", "mod", "/", "*", "+", "-"};
-    int SizeButton = 60, SizeSpace = 4;
     int positionX = width - 4 * SizeButton - 3 * SizeSpace;
     int positionY = height - 5 * SizeButton - 4 * SizeSpace;
     GtkWidget *button;
@@ -60,24 +57,22 @@ void create_operation_button(GtkWidget **buttonOperations, int width, int height
     }
 }
 
-void create_brackets_button(GtkWidget **buttonBrackets, int width, int height, GtkWidget *fixed) {
+void create_brackets_button(GtkWidget **buttonBrackets, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
     char* title[2] = {"(", ")"};
-    int SizeButton = 60, SizeSpace = 4;
     int positionX = width - 7 * SizeButton - 6 * SizeSpace;
-    int positionY = height - 5 * SizeButton - 4 * SizeSpace;
+    int positionY = height - 4 * SizeButton - 3 * SizeSpace;
     GtkWidget *button;
     for (int i = 0; i < 2; i++) {
         button = gtk_button_new_with_label(title[i]);
-        gtk_widget_set_size_request(button, 3 * SizeButton + 2 * SizeSpace, SizeButton);
+        gtk_widget_set_size_request(button, SizeButton, SizeButton);
         gtk_fixed_put(GTK_FIXED(fixed), button, positionX, positionY);
         buttonBrackets[i] = button;
-        positionY += SizeButton + SizeSpace;
+        positionX += SizeButton + SizeSpace;
     }
 }
 
 
-void create_delete_button(GtkWidget *buttonDelete, int width, int height, GtkWidget *fixed) {
-    int SizeButton = 60, SizeSpace = 4;
+void create_delete_button(GtkWidget *buttonDelete, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
     int positionX = width -  SizeButton;
     int positionY = height - 5 * SizeButton - 4 * SizeSpace;
     buttonDelete = gtk_button_new_with_label("AC");
@@ -85,8 +80,7 @@ void create_delete_button(GtkWidget *buttonDelete, int width, int height, GtkWid
     gtk_fixed_put(GTK_FIXED(fixed), buttonDelete, positionX, positionY);
 }
 
-void create_equal_button(GtkWidget *buttonEqual, int width, int height, GtkWidget *fixed) {
-    int SizeButton = 60, SizeSpace = 4;
+void create_equal_button(GtkWidget *buttonEqual, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
     int positionX = width - 2 * SizeButton - SizeSpace;
     int positionY = height - SizeButton;
     buttonEqual = gtk_button_new_with_label("=");
@@ -94,10 +88,26 @@ void create_equal_button(GtkWidget *buttonEqual, int width, int height, GtkWidge
     gtk_fixed_put(GTK_FIXED(fixed), buttonEqual, positionX, positionY);
 }
 
+void create_x_button(GtkWidget *buttonX, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+    int positionX = width - 5 * SizeButton - 4* SizeSpace;
+    int positionY = height - 4 * SizeButton - 3 * SizeSpace;
+    buttonX = gtk_button_new_with_label("x");
+    gtk_widget_set_size_request(buttonX, SizeButton, SizeButton);
+    gtk_fixed_put(GTK_FIXED(fixed), buttonX, positionX, positionY);
+}
+
+void create_empty_button(GtkWidget *buttonEmpty, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+    int positionX = width - 7 * SizeButton - 6 * SizeSpace;
+    int positionY = height - 5 * SizeButton - 4 * SizeSpace;
+    buttonEmpty = gtk_button_new_with_label(" ");
+    gtk_widget_set_size_request(buttonEmpty, 3 * SizeButton + 2 * SizeSpace, SizeButton);
+    gtk_fixed_put(GTK_FIXED(fixed), buttonEmpty, positionX, positionY);
+}
+
 
 void init(int argc, char *argv[]) {
-    int width = 444, height = 400;
-    int positionX = 0, positionY = 0;
+    int width = 724, height = 600;
+    int SizeButton = 100, SizeSpace = 4;
     GtkWidget *window;
     GtkWidget *fixed;
     GtkWidget *buttonDigits[11];
@@ -106,6 +116,8 @@ void init(int argc, char *argv[]) {
     GtkWidget *buttonBrackets[2];
     GtkWidget *buttonOperations[7];
     GtkWidget *buttonDelete;
+    GtkWidget *buttonX;
+    GtkWidget *buttonEmpty;
     
     gtk_init(&argc, &argv);
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -116,13 +128,15 @@ void init(int argc, char *argv[]) {
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
 
-    create_digit_button(buttonDigits, width, height, fixed);
-    create_equal_button(buttonEqual, width, height, fixed);
-    create_function_button(buttonFunctions, width, height, fixed);
-    create_delete_button(buttonDelete, width, height, fixed);
-    create_operation_button(buttonOperations, width, height, fixed);
-    create_brackets_button(buttonBrackets, width, height, fixed);
-    
+    create_digit_button(buttonDigits, width, height, SizeButton, SizeSpace, fixed);
+    create_equal_button(buttonEqual, width, height, SizeButton, SizeSpace, fixed);
+    create_function_button(buttonFunctions, width, height, SizeButton, SizeSpace, fixed);
+    create_delete_button(buttonDelete, width, height, SizeButton, SizeSpace, fixed);
+    create_operation_button(buttonOperations, width, height, SizeButton, SizeSpace, fixed);
+    create_brackets_button(buttonBrackets, width, height, SizeButton, SizeSpace, fixed);
+    create_x_button(buttonX, width, height, SizeButton, SizeSpace, fixed);
+    create_empty_button(buttonEmpty, width, height, SizeButton, SizeSpace, fixed);
+
     gtk_widget_show_all(window);
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
     gtk_main();
