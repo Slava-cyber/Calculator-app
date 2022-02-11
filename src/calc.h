@@ -58,7 +58,7 @@ int symbol(char c);
 int function(char *str);
 double form_function(char **str, value_type_t *func);
 
-int run(char *str, int *point);
+int run(char *str, char *str2, int *point);
 int str_zero(char *str);
 
 int graph_build(char *str, int *point, double *x, double *y);

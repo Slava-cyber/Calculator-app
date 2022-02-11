@@ -17,9 +17,23 @@
     // GtkWidget *windowGraph;
     
     char str[500] = "\0";
+    char str2[500] = "\0";
     int point = 0;
+    int x_status;
     double x1[500];
     double y2[500];
+
+double scale_y(int height) {
+    double min = y2[0];
+    double max = y2[0];
+    for (int i = 0; i < 500; i++) {
+        if (y2[i] < min)
+            min = y2[i];
+        if (y2[i] > max)
+            max = y2[i];
+    }
+    return max - min;
+}
 
 int check_graph(char *str) {
     int result = 0;
@@ -51,24 +65,6 @@ char *delete_char(char *first, int *point) {
     }
     return first;
 }
-
-/*void delete_clicked(GtkWidget *button) {
-    delete_char(str, &point);
-    gtk_label_set_label((GtkLabel*)label, str);
-}*/
-
-/*void digits_clicked(GtkWidget *button) {
-    //char *value = (char*)malloc(2 * sizeof(char));
-    //gtk_button_get_label((GtkButton*)button);
-    char value[5];
-    strcpy(value, gtk_button_get_label((GtkButton*)button));
-    value[2] = '\0';
-    g_print("value:%s", value);
-    g_print("strlen:%d", strlen(value));
-    new_string(str, value, &point);
-    gtk_label_set_label((GtkLabel*)label, str);
-    g_print("new:%s", str);
-}*/
 
 void one_char_operation(char *str, char *value, int *point) {
     char buffer[2] = "\0\0";
@@ -138,18 +134,19 @@ void many_char_operation(char *str, char *value, int *point) {
 //     cairo_stroke(cr);
 // }
 
+
 void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     // int x_area = width - x_shift;
     // int y_area = height - y_shift;
 
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 0.5);
-// оси координат    
+    // оси координат    
     cairo_move_to(cr, x_shift, (height - y_shift) / 2);
     cairo_line_to(cr, width, (height - y_shift) / 2);
     cairo_move_to(cr, (width + x_shift) / 2, 0);
     cairo_line_to(cr, (width + x_shift) / 2, height - y_shift);
-// оси масштаба
+    // оси масштаба
     cairo_move_to(cr, x_shift, 0);
     cairo_line_to(cr, x_shift, height - y_shift);
     cairo_move_to(cr, x_shift, height - y_shift);
@@ -159,22 +156,31 @@ void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
 }
 
 void draw_graph(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
+    int x_area = width - x_shift;
+    int y_area = height - y_shift;
+    double x_step = x_area / 499.0;
+    double x_start = x_shift;
+     double y_step = (height - y_shift - 200) / scale_y(height);
+    //double y_step = 200 / scale_y(height);
+    g_print("y_step:%f\n", y_step);
     cairo_set_source_rgb(cr, 0, 0, 1);
-    cairo_set_line_width(cr, 0.5);
-    for (int i = 0; i < 500 - 10; i++) {
-        cairo_move_to(cr, x_shift + x1[i], y2[i]);
-        cairo_line_to(cr, x_shift + x1[i+1], y2[i+1]);
+    cairo_set_line_width(cr, 3);
+    for (int i = 0; i < 500 - 1; i++) {
+        
+        g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
+        cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
+        x_start += x_step;
+        cairo_line_to(cr, x_start, (height - y_shift) / 2 - y2[i + 1] * y_step);
     }
+    //g_print("width:%d-height:%d\n", width, height);
     cairo_stroke(cr);
 }
-
 
 void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data) {
     int width = 1200, height = 700, x_shift = 50, y_shift = 50;
     draw_axes(cr, width, height, x_shift, y_shift);
     draw_graph(cr, width, height, x_shift, y_shift);
 }
-
 
 void graph() {
     int graph = check_graph(str);
@@ -220,9 +226,27 @@ void button_clicked(GtkWidget *button) {
     char value[5] = "\0\0\0\0\0";
     strcpy(value, gtk_button_get_label((GtkButton*)button));
     if (strcmp(value, "=") == 0) {
-        // if (strlen(str) != 0)
-        //     run(str, &point);
-        run(str, &point);
+        if (strlen(str) != 0) {
+            if (check_graph(str) == 0) {
+                g_print("str2:%s-str:%s\n", str2, str);
+                run(str, str2, &point);
+                str_zero(str2);
+                x_status = 0;
+            } else if (x_status == 0) {
+                g_print("x1\n");
+                str_zero(str2);
+                strcpy(str2, str);
+                str_zero(str);
+                point = 0;
+                x_status += 1;
+            } else {
+                str_zero(str);
+                strcpy(str, "error");
+                point = 5;
+                str_zero(str2);
+                x_status = 0;
+            }
+        }
     } else if (strcmp(value, "f(x)") == 0) {
         form_x_points(100, x1);
         for (int i = 0; i < 500; i++) {
