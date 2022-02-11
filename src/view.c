@@ -249,9 +249,9 @@ void button_clicked(GtkWidget *button) {
         }
     } else if (strcmp(value, "f(x)") == 0) {
         form_x_points(100, x1);
-        for (int i = 0; i < 500; i++) {
-           //g_print("xx:%f\n", x[i]);
-        }
+        // for (int i = 0; i < 500; i++) {
+        //    //g_print("xx:%f\n", x[i]);
+        // }
         //graph_build(str, &point, x, y);
 
         //for (int i = 0; i < 500; i++) {
@@ -260,7 +260,7 @@ void button_clicked(GtkWidget *button) {
         if (!graph_build(str, &point, x1, y2))
             graph();
     } else if (strlen(value) == 1) {
-        g_print("digits\n");
+        //g_print("digits\n");
         one_char_operation(str, value, &point);
     } else if (strlen(value) == 2 && strcmp(value, "AC") == 0) {
         delete_char(str, &point);
