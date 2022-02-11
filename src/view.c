@@ -12,9 +12,25 @@
     GtkWidget *buttonDeleteAll;
     GtkWidget *buttonX;
     GtkWidget *buttonEmpty;
+    
+    // GtkWidget *drawing_area;
+    // GtkWidget *windowGraph;
+    
     char str[500] = "\0";
     int point = 0;
+    double x1[500];
+    double y2[500];
 
+int check_graph(char *str) {
+    int result = 0;
+    int i = 0;
+    while(str[i] != '\0') {
+        if (str[i] == 'x')
+            result = 1;
+        i += 1;
+    }
+    return result;
+}
 
 char *push_char(char *first, char *second, int *point) {
     while(*second != '\0' && *point < 500) {
@@ -97,12 +113,128 @@ void many_char_operation(char *str, char *value, int *point) {
     push_char(str, buffer, point);
 }
 
+// void on_draw_event (GtkWidget *widget, cairo_t *cr, gpointer data)
+// {
+//    /* Отрисовка неба */
+//     cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+//     cairo_rectangle(cr, 0, 0, 700, 300);
+//     cairo_fill(cr);
+//     /* Отрисовка земли */
+//     cairo_set_source_rgb(cr, 0.3, 0.3, 0.0);
+//     cairo_rectangle(cr, 0, 300, 700, 200);
+//     cairo_fill(cr);
+ 
+//     /* Отрисовка солнца */
+//     cairo_set_source_rgb(cr, 1, 1, 0.0);
+//     cairo_arc(cr, 500, 0, 50, 0, M_PI);
+//     cairo_fill(cr);
+//     /* Отрисовка лучей */
+//     cairo_move_to(cr, 500, 0);
+//     cairo_line_to(cr, 400, 50);
+//     cairo_move_to(cr, 500, 0);
+//     cairo_line_to(cr, 500, 100);
+//     cairo_move_to(cr, 500, 0);
+//     cairo_line_to(cr, 600, 50);
+//     cairo_stroke(cr);
+// }
+
+void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
+    // int x_area = width - x_shift;
+    // int y_area = height - y_shift;
+
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_set_line_width(cr, 0.5);
+// оси координат    
+    cairo_move_to(cr, x_shift, (height - y_shift) / 2);
+    cairo_line_to(cr, width, (height - y_shift) / 2);
+    cairo_move_to(cr, (width + x_shift) / 2, 0);
+    cairo_line_to(cr, (width + x_shift) / 2, height - y_shift);
+// оси масштаба
+    cairo_move_to(cr, x_shift, 0);
+    cairo_line_to(cr, x_shift, height - y_shift);
+    cairo_move_to(cr, x_shift, height - y_shift);
+    cairo_line_to(cr, width, height - y_shift);
+
+    cairo_stroke(cr);
+}
+
+void draw_graph(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
+    cairo_set_source_rgb(cr, 0, 0, 1);
+    cairo_set_line_width(cr, 0.5);
+    for (int i = 0; i < 500 - 10; i++) {
+        cairo_move_to(cr, x_shift + x1[i], y2[i]);
+        cairo_line_to(cr, x_shift + x1[i+1], y2[i+1]);
+    }
+    cairo_stroke(cr);
+}
+
+
+void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data) {
+    int width = 1200, height = 700, x_shift = 50, y_shift = 50;
+    draw_axes(cr, width, height, x_shift, y_shift);
+    draw_graph(cr, width, height, x_shift, y_shift);
+}
+
+
+void graph() {
+    int graph = check_graph(str);
+    if (graph) {
+        g_print("tutgraph\n");
+        int width = 1200, height = 700;
+        // создаем новое окно
+        //gtk_init(&argc, &argv);
+        GtkWidget *windowGraph;
+        windowGraph = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+        gtk_window_set_title(GTK_WINDOW(windowGraph), "Graph");
+        gtk_window_set_position(GTK_WINDOW(windowGraph), GTK_WIN_POS_CENTER);
+        gtk_window_set_default_size(GTK_WINDOW(windowGraph), width, height);
+        g_signal_connect(G_OBJECT(windowGraph), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+        /* создать виджет - область для рисования   */
+        GtkWidget *drawing_area;
+        drawing_area = gtk_drawing_area_new();
+        gtk_container_add(GTK_CONTAINER(windowGraph), drawing_area);
+        /* Событие отрисовки содержимого области */
+        //         for (int i = 0; i < 500; i++) {
+        //    g_print("xx:%f\nyy:%f\n", x1[i], y1[i]);
+        // }
+        g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(on_draw_event), NULL);
+
+        gtk_widget_show_all(windowGraph);
+        //gtk_main();
+    }
+}
+
+void form_x_points(double scale, double *x) {
+    double shift = 2 * scale / (500 - 1);
+    g_print("scale:%f\n", scale);
+    double start = scale*(-1) - shift;
+    g_print("start:%f\n", start);
+    for (int i = 0; i < 500; i++) {
+        start += shift;
+        x[i] = start;
+        //g_print("xx:%f\n", x[i]);
+    }
+}
+
 void button_clicked(GtkWidget *button) {
     char value[5] = "\0\0\0\0\0";
     strcpy(value, gtk_button_get_label((GtkButton*)button));
     if (strcmp(value, "=") == 0) {
-        if (strlen(str) != 0)
-            run(str, &point);
+        // if (strlen(str) != 0)
+        //     run(str, &point);
+        run(str, &point);
+    } else if (strcmp(value, "f(x)") == 0) {
+        form_x_points(100, x1);
+        for (int i = 0; i < 500; i++) {
+           //g_print("xx:%f\n", x[i]);
+        }
+        //graph_build(str, &point, x, y);
+
+        //for (int i = 0; i < 500; i++) {
+           //g_print("xx:%f\nyy:%f\n", x[i], y[i]);
+        //}
+        if (!graph_build(str, &point, x1, y2))
+            graph();
     } else if (strlen(value) == 1) {
         g_print("digits\n");
         one_char_operation(str, value, &point);
@@ -116,9 +248,9 @@ void button_clicked(GtkWidget *button) {
     }
     g_print("str:%s\n", str);
     g_print("strlen:%d\n", strlen(str));
+    
     gtk_label_set_label((GtkLabel*)label, str);
 }
-
 
 void create_digit_button(GtkWidget **buttonDigits, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
     char* title[11] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "."};
@@ -234,7 +366,8 @@ void create_x_button(GtkWidget *buttonX, int width, int height, int SizeButton, 
 void create_empty_button(GtkWidget *buttonEmpty, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
     int positionX = width - 7 * SizeButton - 6 * SizeSpace;
     int positionY = height - 5 * SizeButton - 4 * SizeSpace;
-    buttonEmpty = gtk_button_new_with_label(" ");
+    buttonEmpty = gtk_button_new_with_label("f(x)");
+    g_signal_connect(G_OBJECT(buttonEmpty), "clicked", G_CALLBACK(button_clicked), NULL);
     gtk_widget_set_size_request(buttonEmpty, 3 * SizeButton + 2 * SizeSpace, SizeButton);
     gtk_fixed_put(GTK_FIXED(fixed), buttonEmpty, positionX, positionY);
 }
@@ -267,7 +400,6 @@ void init(int argc, char *argv[]) {
     create_brackets_button(buttonBrackets, width, height, SizeButton, SizeSpace, fixed);
     create_x_button(buttonX, width, height, SizeButton, SizeSpace, fixed);
     create_empty_button(buttonEmpty, width, height, SizeButton, SizeSpace, fixed);
-
 
     gtk_widget_show_all(window);
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);

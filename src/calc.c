@@ -36,20 +36,55 @@ int run(char *str, int *point) {
     double answer;
     notation = parsing(str, &error);
     printf("\nerror1:%d\n", error);
-    if (!error) {
-        result = reverse_stack(notation);
-        error = calculate(result, &answer);
-    } 
-    printf("\nerror2:%d\n", error);
+    result = reverse_stack(notation);
+    if (!check_graph(str)) {
+        if (!error) {
+            error = calculate(result, &answer, 0);
+        } 
+        printf("\nerror2:%d\n", error);
+        if (error) {
+            str_zero(str);
+            strcpy(str, "error");
+            *point = 5;
+        } else {
+            str_zero(str);
+            sprintf(str, "%f", answer);
+            *point = strlen(str);
+        }
+    } else {
+    
+    }
+    return 1;
+}
+
+
+int graph_build(char *str, int *point, double *x, double *y) {
+    stack* result = NULL;
+    stack* notation = NULL;
+    int error = 0;
+    if (check_graph) {
+        for (int i = 0; i < 500; i++) {
+            notation = parsing(str, &error);
+            result = reverse_stack(notation);
+            if (!error) {
+                error += calculate(result, &y[i], x[i]);
+            }
+            if (error)
+                break;
+        }
+    } else {
+        error = 1;
+    }
     if (error) {
         str_zero(str);
         strcpy(str, "error");
-    } else {
-        str_zero(str);
-        sprintf(str, "%f", answer);
-        *point = strlen(str);
+        *point = 5;
     }
-    return 1;
+    for (int i = 0; i< 500; i++) {
+        // printf("x:%f\n", x[i]);
+        // printf("y:%f\n", y[i]);
+    }
+    return error;
 }
 
 
@@ -150,7 +185,7 @@ stack* parsing(char *str, int *error) {
     return notation;
 }
 
-int calculate(stack* notation, double *result) {
+int calculate(stack* notation, double *result, double x_value) {
     int error = 0;
     stack *value = NULL;
     printf("tut\n");
@@ -158,9 +193,11 @@ int calculate(stack* notation, double *result) {
         printf("k");
         value_type_t operation = peek_operation(notation);
         //printf("operation:%d\n", operation);
-        if (operation == -2 || operation == -1) {
+        if (operation == -1) {
             //printf("p");
-            push(&value, peek_value(notation), operation);
+            push(&value, x_value, -2);
+        } else if (operation == -2) {
+            push(&value, peek_value(notation), -2);
         } else if (operation >= 2 && operation < 8) {
             action_two_arguments(&value, operation, &error);
             printf("errorcalc:%d\n", error);

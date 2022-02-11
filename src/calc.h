@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
+#include <cairo.h>
 
 typedef enum {
     value = -2,
@@ -60,8 +61,10 @@ double form_function(char **str, value_type_t *func);
 int run(char *str, int *point);
 int str_zero(char *str);
 
+int graph_build(char *str, int *point, double *x, double *y);
+
 stack* parsing(char *str, int *error);
-int calculate(stack* notation, double *result);
+int calculate(stack* notation, double *result, double x_value);
 
 double action_two_arguments(stack **value, value_type_t operation, int *error);
 double action_one_arguments(stack **value, value_type_t operation, int *error);
@@ -71,5 +74,7 @@ int input(char * str);
 
     // view
 void init(int argc, char *argv[]);
+int check_graph(char *str);
+
 
 #endif  // SRC_CALC_H
