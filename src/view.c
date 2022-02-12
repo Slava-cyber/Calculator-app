@@ -20,19 +20,24 @@
     char str2[500] = "\0";
     int point = 0;
     int x_status;
-    double x1[500];
-    double y2[500];
+    double x1[1149];
+    double y2[1149];
+    int numberpoints = 1149;
 
 double scale_y(int height) {
-    double min = y2[0];
-    double max = y2[0];
-    for (int i = 0; i < 500; i++) {
-        if (y2[i] < min)
-            min = y2[i];
-        if (y2[i] > max)
-            max = y2[i];
+    double max = 0;
+    for (int i = 0; i < numberpoints; i++) {
+        if (y2[i] == y2[i]) {
+            max = fabs(y2[i]);
+            break;
+        }
     }
-    return max - min;
+    for (int i = 0; i < numberpoints; i++) {
+        if (fabs(y2[i]) > max)
+            max = fabs(y2[i]);
+    }
+    //g_print("max:%f\n", max);
+    return max;
 }
 
 int check_graph(char *str) {
@@ -158,19 +163,20 @@ void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
 void draw_graph(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     int x_area = width - x_shift;
     int y_area = height - y_shift;
-    double x_step = x_area / 499.0;
+    double x_step = x_area / numberpoints;
     double x_start = x_shift;
-     double y_step = (height - y_shift - 200) / scale_y(height);
-    //double y_step = 200 / scale_y(height);
-    g_print("y_step:%f\n", y_step);
+    double y_step = (height - y_shift) / (2 * scale_y(height));
+    //double y_step = 100 / scale_y(height);
+    g_print("y_step:%f-scale:%f\n", y_step, scale_y(height));
     cairo_set_source_rgb(cr, 0, 0, 1);
     cairo_set_line_width(cr, 3);
-    for (int i = 0; i < 500 - 1; i++) {
-        
-        g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
-        cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
+    for (int i = 0; i < numberpoints - 1; i++) {
+        if (y2[i] == y2[i]) {
+            //g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
+            cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
+            cairo_line_to(cr, x_start, (height - y_shift) / 2 - y2[i + 1] * y_step);
+        }
         x_start += x_step;
-        cairo_line_to(cr, x_start, (height - y_shift) / 2 - y2[i + 1] * y_step);
     }
     //g_print("width:%d-height:%d\n", width, height);
     cairo_stroke(cr);
@@ -183,6 +189,9 @@ void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data) {
 }
 
 void graph() {
+        //     for (int i = 0; i < 1151; i++) {
+        //    g_print("yy:%f\n", y2[i]);
+        // }
     int graph = check_graph(str);
     if (graph) {
         g_print("tutgraph\n");
@@ -194,7 +203,7 @@ void graph() {
         gtk_window_set_title(GTK_WINDOW(windowGraph), "Graph");
         gtk_window_set_position(GTK_WINDOW(windowGraph), GTK_WIN_POS_CENTER);
         gtk_window_set_default_size(GTK_WINDOW(windowGraph), width, height);
-        g_signal_connect(G_OBJECT(windowGraph), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+        g_signal_connect(G_OBJECT(windowGraph), "closed", G_CALLBACK(gtk_main_quit), NULL);
         /* создать виджет - область для рисования   */
         GtkWidget *drawing_area;
         drawing_area = gtk_drawing_area_new();
@@ -211,11 +220,11 @@ void graph() {
 }
 
 void form_x_points(double scale, double *x) {
-    double shift = 2 * scale / (500 - 1);
+    double shift = 2 * scale / (numberpoints - 1);
     g_print("scale:%f\n", scale);
     double start = scale*(-1) - shift;
     g_print("start:%f\n", start);
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < numberpoints; i++) {
         start += shift;
         x[i] = start;
         //g_print("xx:%f\n", x[i]);
@@ -253,12 +262,9 @@ void button_clicked(GtkWidget *button) {
         //    //g_print("xx:%f\n", x[i]);
         // }
         //graph_build(str, &point, x, y);
-
-        //for (int i = 0; i < 500; i++) {
-           //g_print("xx:%f\nyy:%f\n", x[i], y[i]);
-        //}
         if (!graph_build(str, &point, x1, y2))
             graph();
+
     } else if (strlen(value) == 1) {
         //g_print("digits\n");
         one_char_operation(str, value, &point);

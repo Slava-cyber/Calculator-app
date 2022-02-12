@@ -70,7 +70,7 @@ int graph_build(char *str, int *point, double *x, double *y) {
     stack* notation = NULL;
     int error = 0;
     if (check_graph) {
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 1149; i++) {
             notation = parsing(str, &error);
             result = reverse_stack(notation);
             if (!error) {
@@ -87,7 +87,7 @@ int graph_build(char *str, int *point, double *x, double *y) {
         strcpy(str, "error");
         *point = 5;
     }
-    for (int i = 0; i< 500; i++) {
+    for (int i = 0; i< 1149; i++) {
         //printf("x:%f\n", x[i]);
         //printf("y:%f\n", y[i]);
     }

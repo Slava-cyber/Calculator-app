@@ -11,6 +11,7 @@
 #include <gtk/gtk.h>
 #include <cairo.h>
 
+
 typedef enum {
     value = -2,
     x = -1,
@@ -75,6 +76,7 @@ int input(char * str);
     // view
 void init(int argc, char *argv[]);
 int check_graph(char *str);
+
 
 
 #endif  // SRC_CALC_H
