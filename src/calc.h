@@ -76,6 +76,18 @@ int input(char * str);
     // view
 void init(int argc, char *argv[]);
 int check_graph(char *str);
+void scaleUp_clicked(GtkWidget *button, gpointer *data);
+void scaleDown_clicked(GtkWidget *button, gpointer *data);
+double scale_y(int height);
+char *push_char(char *first, char *second, int *point);
+char *delete_char(char *first, int *point);
+void one_char_operation(char *str, char *value, int *point);
+void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift);
+void draw_graph(cairo_t *cr, int width, int height, int x_shift, int y_shift);
+void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data);
+void graph();
+void form_x_points(double scale, double *x);
+void button_clicked(GtkWidget *button);
 
 
 

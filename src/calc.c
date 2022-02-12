@@ -64,12 +64,11 @@ int run(char *str, char *str2, int *point) {
     return 1;
 }
 
-
 int graph_build(char *str, int *point, double *x, double *y) {
     stack* result = NULL;
     stack* notation = NULL;
     int error = 0;
-    if (check_graph) {
+    if (check_graph(str)) {
         for (int i = 0; i < 1151; i++) {
             notation = parsing(str, &error);
             result = reverse_stack(notation);
@@ -93,7 +92,6 @@ int graph_build(char *str, int *point, double *x, double *y) {
     }
     return error;
 }
-
 
 stack* reverse_stack(stack *first) {
     stack* result = NULL;
@@ -302,7 +300,6 @@ double action_one_arguments(stack **value, value_type_t operation, int *error) {
     return result;
 }
 
-
 double form_number(char **str, double *number) {
     *number = 0;
     value_type_t buffer;
@@ -437,7 +434,7 @@ int symbol(char c) {
     return result;
 }
 int function(char *str) {
-    printf("strfactor:%s\n", str);
+    //printf("strfactor:%s\n", str);
     int result = 0;
     if (strcmp(str, "cos(") == 0)
         result = 10;
@@ -464,7 +461,7 @@ double form_function(char **str, value_type_t *func) {
     //char *factor = (char*)malloc(10 * sizeof(char));
     char factor[10] = "\0";
     int error = 0, i = 0;;
-    printf("symbol:%c\n", **str);
+    //printf("symbol:%c\n", **str);
     while (symbol(**str) && i < 5) {
         factor[i] = **str;
         i++;
@@ -476,10 +473,10 @@ double form_function(char **str, value_type_t *func) {
     factor[i] = '\0';
     //factor = factor - 2;
     //strcpy(factor, factor1);
-    printf("factor:%s\n", factor);
+    //printf("factor:%s\n", factor);
     if (!(*func = function(factor)))
         error = 1;
-    printf("error:%d\n", error);
+    //printf("error:%d\n", error);
     //free(factor);
     return error;
 }

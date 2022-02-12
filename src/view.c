@@ -13,9 +13,10 @@
     GtkWidget *buttonX;
     GtkWidget *buttonEmpty;
     GtkWidget *fixedGraph;
-    
-    // GtkWidget *drawing_area;
-    // GtkWidget *windowGraph;
+    GtkWidget *drawing_area;
+    GtkWidget *windowGraph;
+    GtkWidget *scaleUp;
+    GtkWidget *scaleDown;
     
     char str[500] = "\0";
     char str2[500] = "\0";
@@ -24,6 +25,21 @@
     double x1[1151];
     double y2[1151];
     int numberpoints = 1151;
+    double scale = 100;
+
+void scaleUp_clicked(GtkWidget *button, gpointer *data) {
+    if (scale <= 100000)
+        scale = scale * 10;
+    form_x_points(scale, x1);
+    graph_build(str, &point, x1, y2);
+}
+
+void scaleDown_clicked(GtkWidget *button, gpointer *data) {
+    if (scale >= 10e-1)
+        scale /= 10;
+    form_x_points(scale, x1);
+    graph_build(str, &point, x1, y2);
+}
 
 double scale_y(int height) {
     double max = 0;
@@ -76,7 +92,11 @@ void one_char_operation(char *str, char *value, int *point) {
     char buffer[2] = "\0\0";
     if ((value[0] >= '0' && value[0] <= '9') || value[0] == 'x') {
         if (*point != 0) {
-            if (str[*point - 1] == ')') {
+            if (str[*point - 1] == ')' || str[*point - 1] == 'x') {
+                buffer[0] = '*';
+                push_char(str, buffer, point);
+            }
+            if (value[0] == 'x' && str[*point - 1] >= '0' && str[*point - 1] <= '9') {
                 buffer[0] = '*';
                 push_char(str, buffer, point);
             }
@@ -114,32 +134,6 @@ void many_char_operation(char *str, char *value, int *point) {
     buffer[0] = '(';
     push_char(str, buffer, point);
 }
-
-// void on_draw_event (GtkWidget *widget, cairo_t *cr, gpointer data)
-// {
-//    /* Отрисовка неба */
-//     cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
-//     cairo_rectangle(cr, 0, 0, 700, 300);
-//     cairo_fill(cr);
-//     /* Отрисовка земли */
-//     cairo_set_source_rgb(cr, 0.3, 0.3, 0.0);
-//     cairo_rectangle(cr, 0, 300, 700, 200);
-//     cairo_fill(cr);
- 
-//     /* Отрисовка солнца */
-//     cairo_set_source_rgb(cr, 1, 1, 0.0);
-//     cairo_arc(cr, 500, 0, 50, 0, M_PI);
-//     cairo_fill(cr);
-//     /* Отрисовка лучей */
-//     cairo_move_to(cr, 500, 0);
-//     cairo_line_to(cr, 400, 50);
-//     cairo_move_to(cr, 500, 0);
-//     cairo_line_to(cr, 500, 100);
-//     cairo_move_to(cr, 500, 0);
-//     cairo_line_to(cr, 600, 50);
-//     cairo_stroke(cr);
-// }
-
 
 void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     // int x_area = width - x_shift;
@@ -196,44 +190,47 @@ void draw_graph(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
 }
 
 void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data) {
-    int width = 1200, height = 700, x_shift = 50, y_shift = 50;
+    int width = 1200, height = 700, x_shift = 50, y_shift = 150;
+
     draw_axes(cr, width, height, x_shift, y_shift);
     draw_graph(cr, width, height, x_shift, y_shift);
 }
 
+
+
 void graph() {
-            for (int i = 0; i < 1151; i++) {
-           g_print("xx:%f - yy:%f\n", x1[i], y2[i]);
-        }
-    int graph = check_graph(str);
-    if (graph) {
-        g_print("tutgraph\n");
         int width = 1200, height = 700;
         // создаем новое окно
-        //gtk_init(&argc, &argv);
-        GtkWidget *windowGraph;
         windowGraph = gtk_window_new(GTK_WINDOW_TOPLEVEL);
         gtk_window_set_title(GTK_WINDOW(windowGraph), "Graph");
         gtk_window_set_position(GTK_WINDOW(windowGraph), GTK_WIN_POS_CENTER);
         gtk_window_set_default_size(GTK_WINDOW(windowGraph), width, height);
-        g_signal_connect(G_OBJECT(windowGraph), "closed", G_CALLBACK(gtk_main_quit), NULL);
-        
-        GtkWidget *fixedGraph;
+        gtk_window_set_modal(GTK_WINDOW(windowGraph), TRUE);
+        // g_signal_connect(G_OBJECT(windowGraph), "closed", G_CALLBACK(gtk_main_quit), NULL);
+
+        // create fixed
         fixedGraph = gtk_fixed_new();
-        gtk_container_add(GTK_CONTAINER(windowGraph), fixed);
+        gtk_container_add(GTK_CONTAINER(windowGraph), fixedGraph);
+        
         /* создать виджет - область для рисования   */
-        GtkWidget *drawing_area;
         drawing_area = gtk_drawing_area_new();
-        gtk_container_add(GTK_CONTAINER(windowGraph), drawing_area);
-        /* Событие отрисовки содержимого области */
-        //         for (int i = 0; i < 500; i++) {
-        //    g_print("xx:%f\nyy:%f\n", x1[i], y1[i]);
-        // }
+        gtk_widget_set_size_request(drawing_area, width, height - 100);
+        gtk_fixed_put(GTK_FIXED(fixedGraph), drawing_area, 0, 0);
         g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(on_draw_event), NULL);
 
+        // button ScaleUp
+        scaleUp = gtk_button_new_with_label("scale+");
+        g_signal_connect(G_OBJECT(scaleUp), "clicked", G_CALLBACK(scaleUp_clicked), NULL);
+        gtk_widget_set_size_request(scaleUp, width/2, 100);
+        gtk_fixed_put(GTK_FIXED(fixedGraph), scaleUp, 0, height - 100);
+        
+        // button ScaleDown
+        scaleDown = gtk_button_new_with_label("scale-");
+        g_signal_connect(G_OBJECT(scaleDown), "clicked", G_CALLBACK(scaleDown_clicked), NULL);
+        gtk_widget_set_size_request(scaleDown, width/2, 100);
+        gtk_fixed_put(GTK_FIXED(fixedGraph), scaleDown, width/2, height - 100);
+
         gtk_widget_show_all(windowGraph);
-        //gtk_main();
-    }
 }
 
 void form_x_points(double scale, double *x) {
@@ -247,7 +244,6 @@ void form_x_points(double scale, double *x) {
         x[i] = start;
         x[i] = modf(x[i] * 10e5, &buf);
         x[i] = buf / 10e5;
-        //g_print("xx:%.13f\n", 1/x[i]);
     }
 }
 
@@ -277,16 +273,11 @@ void button_clicked(GtkWidget *button) {
             }
         }
     } else if (strcmp(value, "f(x)") == 0) {
-        form_x_points(10, x1);
-        // for (int i = 0; i < 500; i++) {
-        //    //g_print("xx:%f\n", x[i]);
-        // }
-        //graph_build(str, &point, x, y);
-        if (!graph_build(str, &point, x1, y2))
+        g_print("scale:%f", scale);
+        form_x_points(scale, x1);
+        if (strlen(str) != 0 && !graph_build(str, &point, x1, y2))
             graph();
-
     } else if (strlen(value) == 1) {
-        //g_print("digits\n");
         one_char_operation(str, value, &point);
     } else if (strlen(value) == 2 && strcmp(value, "AC") == 0) {
         delete_char(str, &point);
@@ -296,9 +287,6 @@ void button_clicked(GtkWidget *button) {
     } else {
         many_char_operation(str, value, &point);
     }
-    g_print("str:%s\n", str);
-    g_print("strlen:%d\n", strlen(str));
-    
     gtk_label_set_label((GtkLabel*)label, str);
 }
 
@@ -422,25 +410,23 @@ void create_empty_button(GtkWidget *buttonEmpty, int width, int height, int Size
     gtk_fixed_put(GTK_FIXED(fixed), buttonEmpty, positionX, positionY);
 }
 
-
-
 void init(int argc, char *argv[]) {
     int width = 724, height = 700;
     int SizeButton = 100, SizeSpace = 4;
-// create window    
+    // create window    
     gtk_init(&argc, &argv);
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Calculator");
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size(GTK_WINDOW(window), width, height);
-// create fixed
+    // create fixed
     fixed = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), fixed);
-// create label
+    // create label
     label = gtk_label_new(str);
     gtk_widget_set_size_request(label, width, height - 5 * SizeButton - 5 * SizeSpace);
     gtk_fixed_put(GTK_FIXED(fixed), label, 0, 0);
-// create buttons 
+    // create buttons 
     create_digit_button(buttonDigits, width, height, SizeButton, SizeSpace, fixed);
     create_equal_button(buttonEqual, width, height, SizeButton, SizeSpace, fixed);
     create_function_button(buttonFunctions, width, height, SizeButton, SizeSpace, fixed);
