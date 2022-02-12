@@ -70,7 +70,7 @@ int graph_build(char *str, int *point, double *x, double *y) {
     stack* notation = NULL;
     int error = 0;
     if (check_graph) {
-        for (int i = 0; i < 1149; i++) {
+        for (int i = 0; i < 1151; i++) {
             notation = parsing(str, &error);
             result = reverse_stack(notation);
             if (!error) {
@@ -87,7 +87,7 @@ int graph_build(char *str, int *point, double *x, double *y) {
         strcpy(str, "error");
         *point = 5;
     }
-    for (int i = 0; i< 1149; i++) {
+    for (int i = 0; i< 1151; i++) {
         //printf("x:%f\n", x[i]);
         //printf("y:%f\n", y[i]);
     }
@@ -260,6 +260,10 @@ double action_two_arguments(stack **value, value_type_t operation, int *error) {
         }
         push(value, result, -2);
     }
+    // if (result == result)
+    //     printf("result:%f\n", result);
+    // else 
+    //     printf("result:%s\n", "nan");
     return result;
 }
 
@@ -279,7 +283,7 @@ double action_one_arguments(stack **value, value_type_t operation, int *error) {
         } else if (operation == sine) {
             result = sin(number);
         } else if (operation == tangent) {
-            result = tan(x); 
+            result = tan(number); 
         } else if (operation == arc_cosine) {
             result = acos(number);
         } else if (operation == arc_sine) {

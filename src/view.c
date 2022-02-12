@@ -12,6 +12,7 @@
     GtkWidget *buttonDeleteAll;
     GtkWidget *buttonX;
     GtkWidget *buttonEmpty;
+    GtkWidget *fixedGraph;
     
     // GtkWidget *drawing_area;
     // GtkWidget *windowGraph;
@@ -20,20 +21,20 @@
     char str2[500] = "\0";
     int point = 0;
     int x_status;
-    double x1[1149];
-    double y2[1149];
-    int numberpoints = 1149;
+    double x1[1151];
+    double y2[1151];
+    int numberpoints = 1151;
 
 double scale_y(int height) {
     double max = 0;
     for (int i = 0; i < numberpoints; i++) {
-        if (y2[i] == y2[i]) {
+        if (!isnan(y2[i]) && !isinf(y2[i])) {
             max = fabs(y2[i]);
             break;
         }
     }
     for (int i = 0; i < numberpoints; i++) {
-        if (fabs(y2[i]) > max)
+        if (fabs(y2[i]) > max && !isnan(y2[i]) && !isinf(y2[i]))
             max = fabs(y2[i]);
     }
     //g_print("max:%f\n", max);
@@ -163,20 +164,32 @@ void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
 void draw_graph(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     int x_area = width - x_shift;
     int y_area = height - y_shift;
-    double x_step = x_area / numberpoints;
+    double x_step = x_area * 1.0 / numberpoints;
     double x_start = x_shift;
     double y_step = (height - y_shift) / (2 * scale_y(height));
     //double y_step = 100 / scale_y(height);
-    g_print("y_step:%f-scale:%f\n", y_step, scale_y(height));
+    //     cairo_translate(cr, 625, 325);
+    // cairo_scale(cr, 80, -80);
     cairo_set_source_rgb(cr, 0, 0, 1);
     cairo_set_line_width(cr, 3);
-    for (int i = 0; i < numberpoints - 1; i++) {
-        if (y2[i] == y2[i]) {
+    int line = 0;
+    for (int i = 0; i < numberpoints; i++) {
+        //g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
+        if (isnan(y2[i]) == 0 && isinf(y2[i]) == 0) {
+            if (line == 0) {
             //g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
-            cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
-            cairo_line_to(cr, x_start, (height - y_shift) / 2 - y2[i + 1] * y_step);
+                cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
+                line = 1;
+            } else {
+                cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
+                cairo_line_to(cr, x_start - x_step, (height - y_shift) / 2 - y2[i - 1] * y_step);
+            }
+            //cairo_line_to(cr, x_start, (height - y_shift) / 2 - y2[i + 1] * y_step);
+        } else {
+            line = 0;
         }
         x_start += x_step;
+        //g_print("x_step:%f-x_start:%f-line:%d-i:%d\n", x_step, x_start, line, i);
     }
     //g_print("width:%d-height:%d\n", width, height);
     cairo_stroke(cr);
@@ -189,9 +202,9 @@ void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data) {
 }
 
 void graph() {
-        //     for (int i = 0; i < 1151; i++) {
-        //    g_print("yy:%f\n", y2[i]);
-        // }
+            for (int i = 0; i < 1151; i++) {
+           g_print("xx:%f - yy:%f\n", x1[i], y2[i]);
+        }
     int graph = check_graph(str);
     if (graph) {
         g_print("tutgraph\n");
@@ -204,6 +217,10 @@ void graph() {
         gtk_window_set_position(GTK_WINDOW(windowGraph), GTK_WIN_POS_CENTER);
         gtk_window_set_default_size(GTK_WINDOW(windowGraph), width, height);
         g_signal_connect(G_OBJECT(windowGraph), "closed", G_CALLBACK(gtk_main_quit), NULL);
+        
+        GtkWidget *fixedGraph;
+        fixedGraph = gtk_fixed_new();
+        gtk_container_add(GTK_CONTAINER(windowGraph), fixed);
         /* создать виджет - область для рисования   */
         GtkWidget *drawing_area;
         drawing_area = gtk_drawing_area_new();
@@ -221,13 +238,16 @@ void graph() {
 
 void form_x_points(double scale, double *x) {
     double shift = 2 * scale / (numberpoints - 1);
+    double buf;
     g_print("scale:%f\n", scale);
     double start = scale*(-1) - shift;
     g_print("start:%f\n", start);
     for (int i = 0; i < numberpoints; i++) {
         start += shift;
         x[i] = start;
-        //g_print("xx:%f\n", x[i]);
+        x[i] = modf(x[i] * 10e5, &buf);
+        x[i] = buf / 10e5;
+        //g_print("xx:%.13f\n", 1/x[i]);
     }
 }
 
@@ -257,7 +277,7 @@ void button_clicked(GtkWidget *button) {
             }
         }
     } else if (strcmp(value, "f(x)") == 0) {
-        form_x_points(100, x1);
+        form_x_points(10, x1);
         // for (int i = 0; i < 500; i++) {
         //    //g_print("xx:%f\n", x[i]);
         // }
