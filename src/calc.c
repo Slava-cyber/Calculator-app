@@ -34,8 +34,10 @@ int run(char *str, char *str2, int *point) {
     stack* notation = NULL;
     int error = 0;
     double answer;
+    printf("g\n");
     notation = parsing(str, &error);
-    //printf("\nerror1:%d\n", error);
+    
+    printf("\nerror1:%d\n", error);
     result = reverse_stack(notation);
     if (!error) {
         error = calculate(result, &answer, 0);
@@ -114,6 +116,10 @@ stack* parsing(char *str, int *error) {
         //printf("%d-%c\n", tmp, *(tmp));
         if (*tmp == ')') {
             right_bracket += 1;
+            if (buffer == NULL) {
+                *error = 1;
+                break;
+            }
             while (peek_operation(buffer) != bracket_left && buffer != NULL) {
                 printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
                 push(&notation, peek_value(buffer), peek_operation(buffer));
@@ -180,8 +186,9 @@ stack* parsing(char *str, int *error) {
         //printf("%d-%c\n", tmp, *tmp);
         //printf("BUFFER:%d\n", peek_operation(buffer));
     }
-    if (left_bracket != right_bracket)
+    if (left_bracket != right_bracket || notation == NULL)
         *error = 1;
+
     //printf("errorrrrrrs:%d\n", *error);
     while (buffer != NULL) {
         push(&notation, peek_value(buffer), peek_operation(buffer));

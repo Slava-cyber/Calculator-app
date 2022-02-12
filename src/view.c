@@ -196,8 +196,6 @@ void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data) {
     draw_graph(cr, width, height, x_shift, y_shift);
 }
 
-
-
 void graph() {
         int width = 1200, height = 700;
         // создаем новое окно
