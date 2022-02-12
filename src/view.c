@@ -22,9 +22,9 @@
     char str2[500] = "\0";
     int point = 0;
     int x_status;
-    double x1[1151];
-    double y2[1151];
-    int numberpoints = 1151;
+    double x1[numberpoints];
+    double y2[numberpoints];
+    // int numberpoints = 10001;
     double scale = 100;
 
 void scaleUp_clicked(GtkWidget *button, gpointer *data) {
@@ -168,7 +168,7 @@ void draw_graph(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     cairo_set_line_width(cr, 3);
     int line = 0;
     for (int i = 0; i < numberpoints; i++) {
-        //g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
+        g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
         if (isnan(y2[i]) == 0 && isinf(y2[i]) == 0) {
             if (line == 0) {
             //g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);

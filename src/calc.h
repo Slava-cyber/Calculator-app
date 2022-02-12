@@ -11,6 +11,7 @@
 #include <gtk/gtk.h>
 #include <cairo.h>
 
+#define numberpoints 2001
 
 typedef enum {
     value = -2,

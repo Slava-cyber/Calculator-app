@@ -71,7 +71,7 @@ int graph_build(char *str, int *point, double *x, double *y) {
     stack* notation = NULL;
     int error = 0;
     if (check_graph(str)) {
-        for (int i = 0; i < 1151; i++) {
+        for (int i = 0; i < numberpoints; i++) {
             notation = parsing(str, &error);
             result = reverse_stack(notation);
             if (!error) {
@@ -88,7 +88,7 @@ int graph_build(char *str, int *point, double *x, double *y) {
         strcpy(str, "error");
         *point = 5;
     }
-    for (int i = 0; i< 1151; i++) {
+    for (int i = 0; i< numberpoints; i++) {
         //printf("x:%f\n", x[i]);
         //printf("y:%f\n", y[i]);
     }
@@ -121,7 +121,7 @@ stack* parsing(char *str, int *error) {
                 break;
             }
             while (peek_operation(buffer) != bracket_left && buffer != NULL) {
-                printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
+                //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
                 push(&notation, peek_value(buffer), peek_operation(buffer));
                 //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
                 pop(&buffer);
