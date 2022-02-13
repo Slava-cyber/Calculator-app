@@ -23,17 +23,38 @@
 //     return 0;
 // }
 
+//     char str4[] = "+5+1.2";
+//     char str3[] = "3";
+//     int point3 = 4;
+
+// int main() {
+//     run(str4, str3, &point3);
+//     return 1;
+// }
+
+
+int check_graph(char *str) {
+    int result = 0;
+    int i = 0;
+    while(str[i] != '\0') {
+        if (str[i] == 'x')
+            result = 1;
+        i += 1;
+    }
+    return result;
+}
+
 int str_zero(char *str) {
-    for (int i = 0; i < 500; i++)
+    for (int i = 0; i < 300; i++)
         str[i] = '\0';
     return 1;
 }
 
-int run(char *str, char *str2, int *point) {
+double run(char *str, char *str2, int *point) {
     stack* result = NULL;
     stack* notation = NULL;
     int error = 0;
-    double answer;
+    double answer = 0;
     notation = parsing(str, &error);
     // printf("\nerror1:%d\n", error);
     result = reverse_stack(notation);
@@ -59,7 +80,7 @@ int run(char *str, char *str2, int *point) {
         sprintf(str, "%f", answer);
         *point = strlen(str);
     }
-    return 1;
+    return answer;
 }
 
 int graph_build(char *str, int *point, double *x, double *y) {
@@ -137,9 +158,9 @@ stack* parsing(char *str, int *error) {
         } else if (*tmp == '(') {
             left_bracket += 1;
             push(&buffer, 0.0, bracket_left);
-        } else if (*tmp == '+' && (!i || *(tmp-1) == '(')) {
+        } else if (*tmp == '+' && (i == 0 || *(tmp-1) == '(')) {
             push(&buffer, 0.0, unary_plus);
-        } else if (*tmp == '-' && (!i || *(tmp-1) == '(')) {
+        } else if (*tmp == '-' && (i == 0 || *(tmp-1) == '(')) {
             //printf("!!!\n");
             push(&buffer, 0.0, unary_minus);
         } else {
@@ -269,6 +290,8 @@ double action_one_arguments(stack **value, value_type_t operation, int *error) {
     if (*error != 1) {
         if (operation == unary_minus) {
             result = number * (-1);
+        } else if (operation == unary_plus) {
+            result = number;
         } else if (operation == cosine) {
             result = cos(number);
         } else if (operation == sine) {
@@ -366,7 +389,7 @@ value_type_t peek_operation(const stack *head) {
         exit(-1);
     return head->operation;
 }
-
+  
 int prior(value_type_t operation) {
     int flag = 0;
     if (operation == bracket_left) {
@@ -436,9 +459,9 @@ int function(char *str) {
         result = 15;
     if (strcmp(str, "sqrt(") == 0)
         result = 16;
-    if (strcmp(str, "log(") == 0)
-        result = 17;
     if (strcmp(str, "ln(") == 0)
+        result = 17;
+    if (strcmp(str, "log(") == 0)
         result = 18;
     return result;
 }

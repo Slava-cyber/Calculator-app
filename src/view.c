@@ -18,8 +18,8 @@
     GtkWidget *scaleUp;
     GtkWidget *scaleDown;
     
-    char str[500] = "\0";
-    char str2[500] = "\0";
+    char str[300] = "\0";
+    char str2[300] = "\0";
     int point = 0;
     int x_status;
     double x1[numberpoints];
@@ -55,19 +55,8 @@ double scale_y(int height) {
     return max;
 }
 
-int check_graph(char *str) {
-    int result = 0;
-    int i = 0;
-    while(str[i] != '\0') {
-        if (str[i] == 'x')
-            result = 1;
-        i += 1;
-    }
-    return result;
-}
-
 char *push_char(char *first, char *second, int *point) {
-    while(*second != '\0' && *point < 500) {
+    while(*second != '\0' && *point < 300) {
         first[*point] = *second;
         *point += 1;
         second++;

@@ -61,7 +61,7 @@ int function(char *str);
 double form_function(char **str, value_type_t *func);
 int str_zero(char *str);
 
-int run(char *str, char *str2, int *point);
+double run(char *str, char *str2, int *point);
 int graph_build(char *str, int *point, double *x, double *y);
 
 stack* parsing(char *str, int *error);

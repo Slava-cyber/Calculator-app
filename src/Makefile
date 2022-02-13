@@ -1,11 +1,14 @@
-all: calc
+all: clean calc
+
+debug:
+	gcc calc.c `pkg-config --cflags --libs gtk+-3.0` -o ./a.out
 
 calc: 
 	gcc view.c controller.c calc.c `pkg-config --cflags --libs gtk+-3.0` -o calc
 	./calc
 
 test: 
-	gcc  test.c calc.c  `pkg-config --cflags --libs gtk+-3.0` -o Test -lcheck
+	gcc test.c calc.c -g `pkg-config --cflags --libs gtk+-3.0` -o Test -lcheck
 	./Test
 
 # s21_test.o: test.c calc.c
