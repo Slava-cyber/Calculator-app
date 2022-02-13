@@ -35,7 +35,7 @@ void scaleUp_clicked(GtkWidget *button, gpointer *data) {
 }
 
 void scaleDown_clicked(GtkWidget *button, gpointer *data) {
-    if (scale >= 10e-1)
+    if (scale >= 1e-1)
         scale /= 10;
     form_x_points(scale, x1);
     graph_build(str, &point, x1, y2);
@@ -140,7 +140,7 @@ void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     // int y_area = height - y_shift;
 
     cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_set_line_width(cr, 0.5);
+    cairo_set_line_width(cr, 1);
     // оси координат    
     cairo_move_to(cr, x_shift, (height - y_shift) / 2);
     cairo_line_to(cr, width, (height - y_shift) / 2);
@@ -161,39 +161,81 @@ void draw_graph(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     double x_step = x_area * 1.0 / numberpoints;
     double x_start = x_shift;
     double y_step = (height - y_shift) / (2 * scale_y(height));
-    //double y_step = 100 / scale_y(height);
-    //     cairo_translate(cr, 625, 325);
-    // cairo_scale(cr, 80, -80);
-    cairo_set_source_rgb(cr, 0, 0, 1);
-    cairo_set_line_width(cr, 3);
+    cairo_set_source_rgb(cr, 1, 0, 0);
+    cairo_set_line_width(cr, 0.5);
     int line = 0;
     for (int i = 0; i < numberpoints; i++) {
-        g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
+        // g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
         if (isnan(y2[i]) == 0 && isinf(y2[i]) == 0) {
             if (line == 0) {
-            //g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
                 cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
                 line = 1;
             } else {
                 cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
                 cairo_line_to(cr, x_start - x_step, (height - y_shift) / 2 - y2[i - 1] * y_step);
             }
-            //cairo_line_to(cr, x_start, (height - y_shift) / 2 - y2[i + 1] * y_step);
         } else {
             line = 0;
         }
         x_start += x_step;
-        //g_print("x_step:%f-x_start:%f-line:%d-i:%d\n", x_step, x_start, line, i);
     }
-    //g_print("width:%d-height:%d\n", width, height);
+    cairo_stroke(cr);
+}
+
+void draw_value(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_set_line_width(cr, 0.25);
+    double y_step = (height - y_shift) / 10;
+    double y_start = height - y_shift;
+    double scaleY = scale_y(height);
+    double scaleYstep = 2 * scaleY / 10;
+    double scaleYstart = (-1) * scale_y(height);
+    double scaleXstep = 2 * scale / 10;
+    double scaleXstart = (-1) * scale;
+
+
+    char textY[10][20], textX[10][20];
+    for (int i = 0; i < 10; i++) {
+        sprintf(textY[i], "%.2e", scaleYstart);
+        scaleYstart += scaleYstep;
+        sprintf(textX[i], "%.2f", scaleXstart);
+        scaleXstart += scaleXstep;
+    }
+
+    for (int i = 0; i < 10; i++) {
+        cairo_move_to(cr, x_shift - 5, y_start);
+        cairo_line_to(cr, width, y_start);
+        cairo_move_to(cr, 0, y_start);
+        cairo_show_text(cr, textY[i]);
+        y_start -= y_step;
+    }
+    double x_step = (width - x_shift) / 10;
+    double x_start = x_shift;
+    for (int i = 0; i < 10; i++) {
+        cairo_move_to(cr, x_start, height - y_shift + 5);
+        cairo_line_to(cr, x_start, 0);
+        cairo_move_to(cr, x_start, height - y_shift + 20);
+        cairo_show_text(cr, textX[i]);
+        x_start += x_step;
+    }
+
+
+    // for (int i = 0; i < 10; i++) {
+    //     cairo_move_to(cr_text, x, y);
+    //     cairo_show_text(cr_text, text[i]);
+    //     y += 20;
+    // }
+    g_print("tutvalue\n");
     cairo_stroke(cr);
 }
 
 void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data) {
     int width = 1200, height = 700, x_shift = 50, y_shift = 150;
-
+    
+    draw_value(cr, width, height, x_shift, y_shift);
     draw_axes(cr, width, height, x_shift, y_shift);
     draw_graph(cr, width, height, x_shift, y_shift);
+    //draw_value(cr, width, height, x_shift, y_shift);
 }
 
 void graph() {
