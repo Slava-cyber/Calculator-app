@@ -23,9 +23,9 @@
 //     return 0;
 // }
 
-//     char str4[] = "+5+1.2";
-//     char str3[] = "3";
-//     int point3 = 4;
+    // char str4[] = "+5+1.2+sin(3)";
+    // char str3[] = "3";
+    // int point3 = 4;
 
 // int main() {
 //     run(str4, str3, &point3);
