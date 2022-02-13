@@ -45,12 +45,12 @@ typedef struct stack {
     struct stack *next;
 } stack;
 
+    // calc.c
 void push(stack **head, double number, value_type_t oper);
 stack* pop(stack **head);
 double peek_value(const stack *head);
 value_type_t peek_operation(const stack *head);
 stack* reverse_stack(stack *first);
-
 
 double form_number(char **str, double *number);
 int prior(value_type_t operation);
@@ -59,22 +59,17 @@ int operation(char c, value_type_t *operation);
 int symbol(char c);
 int function(char *str);
 double form_function(char **str, value_type_t *func);
-
-int run(char *str, char *str2, int *point);
 int str_zero(char *str);
 
+int run(char *str, char *str2, int *point);
 int graph_build(char *str, int *point, double *x, double *y);
 
 stack* parsing(char *str, int *error);
 int calculate(stack* notation, double *result, double x_value);
-
 double action_two_arguments(stack **value, value_type_t operation, int *error);
 double action_one_arguments(stack **value, value_type_t operation, int *error);
 
-int input(char * str);
-
-
-    // view
+    // view.c
 void init(int argc, char *argv[]);
 int check_graph(char *str);
 void scaleUp_clicked(GtkWidget *button, gpointer *data);
@@ -89,6 +84,17 @@ void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data);
 void graph();
 void form_x_points(double scale, double *x);
 void button_clicked(GtkWidget *button);
+void create_digit_button(GtkWidget **buttonDigits, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed);
+void create_function_button(GtkWidget **buttonFunctions, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed);
+void create_operation_button(GtkWidget **buttonOperations, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed);
+void create_brackets_button(GtkWidget **buttonBrackets, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed);
+void create_delete_button(GtkWidget *buttonDelete, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed);
+void create_deleteAll_button(GtkWidget *buttonDelete, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed);
+void create_equal_button(GtkWidget *buttonEqual, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed);
+void create_x_button(GtkWidget *buttonX, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed);
+void create_empty_button(GtkWidget *buttonEmpty, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed);
+void init(int argc, char *argv[]);
+
 
 
 

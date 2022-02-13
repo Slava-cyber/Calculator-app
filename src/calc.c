@@ -34,20 +34,16 @@ int run(char *str, char *str2, int *point) {
     stack* notation = NULL;
     int error = 0;
     double answer;
-    printf("g\n");
     notation = parsing(str, &error);
-    
-    printf("\nerror1:%d\n", error);
+    // printf("\nerror1:%d\n", error);
     result = reverse_stack(notation);
     if (!error) {
         error = calculate(result, &answer, 0);
     }
-    printf("\nerror2:%d\n", error);
+    // printf("\nerror2:%d\n", error);
     if (check_graph(str2) && !error) {
-        printf("answer:%f\n", answer);
         double answer2 = 0;
         notation = parsing(str2, &error);
-        //printf("\nerror1:%d\n", error);
         result = reverse_stack(notation);
         if (!error)
             error = calculate(result, &answer2, answer);
@@ -88,10 +84,6 @@ int graph_build(char *str, int *point, double *x, double *y) {
         strcpy(str, "error");
         *point = 5;
     }
-    for (int i = 0; i< numberpoints; i++) {
-        //printf("x:%f\n", x[i]);
-        //printf("y:%f\n", y[i]);
-    }
     return error;
 }
 
@@ -121,7 +113,6 @@ stack* parsing(char *str, int *error) {
                 break;
             }
             while (peek_operation(buffer) != bracket_left && buffer != NULL) {
-                //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
                 push(&notation, peek_value(buffer), peek_operation(buffer));
                 //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
                 pop(&buffer);
@@ -130,7 +121,6 @@ stack* parsing(char *str, int *error) {
                     break;
                 }
             }
-            //printf("h!!!!!!!!!!!!!s\n");
 
             if (*error != 1)
                 pop(&buffer);
@@ -265,10 +255,6 @@ double action_two_arguments(stack **value, value_type_t operation, int *error) {
         }
         push(value, result, -2);
     }
-    // if (result == result)
-    //     printf("result:%f\n", result);
-    // else 
-    //     printf("result:%s\n", "nan");
     return result;
 }
 
@@ -314,7 +300,6 @@ double form_number(char **str, double *number) {
     while ((dig = digit(**str)) > -1) {
         *number = 10 * *number + dig;
         *str += 1;
-        //printf("%d", dig);
     }
     if (**str == '.') {
         *str += 1;
@@ -322,21 +307,14 @@ double form_number(char **str, double *number) {
             int i = 0;
             while ((dig = digit(**str)) > -1) {
                 i +=1;
-                //printf("number:%f\n", dig / pow(10, i));
-                //printf("%d", dig);
                 double buf = dig / pow(10, i);
                 *number += buf;
-                //printf("number:%f\n", *number);
                 *str += 1;
             }
         } else {
             error = 1;
         }
     } 
-    //else if ((!operation(**str, &buffer) || **str == ')') && **str != '\0') {
-    //    error = 1;
-    //}
-    //printf("number:%f\n", *number);
     if (!(operation(**str, &buffer) || **str == ')' || **str == '\0'))
         error = 1;
     return error;
@@ -440,8 +418,9 @@ int symbol(char c) {
     }
     return result;
 }
+
 int function(char *str) {
-    //printf("strfactor:%s\n", str);
+    // printf("strfactor:%s\n", str);
     int result = 0;
     if (strcmp(str, "cos(") == 0)
         result = 10;
@@ -465,25 +444,17 @@ int function(char *str) {
 }
 
 double form_function(char **str, value_type_t *func) {
-    //char *factor = (char*)malloc(10 * sizeof(char));
     char factor[10] = "\0";
     int error = 0, i = 0;;
-    //printf("symbol:%c\n", **str);
     while (symbol(**str) && i < 5) {
         factor[i] = **str;
         i++;
-        //factor += 1;
         if (**str == '(')
             break;
         *str += 1;
     }
     factor[i] = '\0';
-    //factor = factor - 2;
-    //strcpy(factor, factor1);
-    //printf("factor:%s\n", factor);
     if (!(*func = function(factor)))
         error = 1;
-    //printf("error:%d\n", error);
-    //free(factor);
     return error;
 }

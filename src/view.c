@@ -24,7 +24,6 @@
     int x_status;
     double x1[numberpoints];
     double y2[numberpoints];
-    // int numberpoints = 10001;
     double scale = 100;
 
 void scaleUp_clicked(GtkWidget *button, gpointer *data) {
@@ -53,7 +52,6 @@ double scale_y(int height) {
         if (fabs(y2[i]) > max && !isnan(y2[i]) && !isinf(y2[i]))
             max = fabs(y2[i]);
     }
-    //g_print("max:%f\n", max);
     return max;
 }
 
@@ -75,8 +73,6 @@ char *push_char(char *first, char *second, int *point) {
         second++;
     }
     first[*point] = '\0';
-    // if (*point == 500)
-    //     *error = 1;
     return first;
 }
 
@@ -103,7 +99,6 @@ void one_char_operation(char *str, char *value, int *point) {
         }
         push_char(str, value, point);
     } else if (value[0] == '.') {
-        //g_print("!");
         if (*point != 0) {
             if (str[*point - 1] >= '0' && str[*point - 1] <= '9')
                 push_char(str, value, point);
@@ -136,9 +131,6 @@ void many_char_operation(char *str, char *value, int *point) {
 }
 
 void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
-    // int x_area = width - x_shift;
-    // int y_area = height - y_shift;
-
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 1);
     // оси координат    
@@ -187,12 +179,13 @@ void draw_value(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     cairo_set_line_width(cr, 0.25);
     double y_step = (height - y_shift) / 10;
     double y_start = height - y_shift;
+    double x_step = (width - x_shift) / 10;
+    double x_start = x_shift;
     double scaleY = scale_y(height);
     double scaleYstep = 2 * scaleY / 10;
     double scaleYstart = (-1) * scale_y(height);
     double scaleXstep = 2 * scale / 10;
     double scaleXstart = (-1) * scale;
-
 
     char textY[10][20], textX[10][20];
     for (int i = 0; i < 10; i++) {
@@ -208,34 +201,20 @@ void draw_value(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
         cairo_move_to(cr, 0, y_start);
         cairo_show_text(cr, textY[i]);
         y_start -= y_step;
-    }
-    double x_step = (width - x_shift) / 10;
-    double x_start = x_shift;
-    for (int i = 0; i < 10; i++) {
         cairo_move_to(cr, x_start, height - y_shift + 5);
         cairo_line_to(cr, x_start, 0);
         cairo_move_to(cr, x_start, height - y_shift + 20);
         cairo_show_text(cr, textX[i]);
         x_start += x_step;
     }
-
-
-    // for (int i = 0; i < 10; i++) {
-    //     cairo_move_to(cr_text, x, y);
-    //     cairo_show_text(cr_text, text[i]);
-    //     y += 20;
-    // }
-    g_print("tutvalue\n");
     cairo_stroke(cr);
 }
 
 void on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer data) {
     int width = 1200, height = 700, x_shift = 50, y_shift = 150;
-    
     draw_value(cr, width, height, x_shift, y_shift);
     draw_axes(cr, width, height, x_shift, y_shift);
     draw_graph(cr, width, height, x_shift, y_shift);
-    //draw_value(cr, width, height, x_shift, y_shift);
 }
 
 void graph() {
@@ -276,9 +255,9 @@ void graph() {
 void form_x_points(double scale, double *x) {
     double shift = 2 * scale / (numberpoints - 1);
     double buf;
-    g_print("scale:%f\n", scale);
+    // g_print("scale:%f\n", scale);
     double start = scale*(-1) - shift;
-    g_print("start:%f\n", start);
+    // g_print("start:%f\n", start);
     for (int i = 0; i < numberpoints; i++) {
         start += shift;
         x[i] = start;
@@ -293,12 +272,10 @@ void button_clicked(GtkWidget *button) {
     if (strcmp(value, "=") == 0) {
         if (strlen(str) != 0) {
             if (check_graph(str) == 0) {
-                g_print("str2:%s-str:%s\n", str2, str);
                 run(str, str2, &point);
                 str_zero(str2);
                 x_status = 0;
             } else if (x_status == 0) {
-                g_print("x1\n");
                 str_zero(str2);
                 strcpy(str2, str);
                 str_zero(str);
@@ -313,7 +290,6 @@ void button_clicked(GtkWidget *button) {
             }
         }
     } else if (strcmp(value, "f(x)") == 0) {
-        g_print("scale:%f", scale);
         form_x_points(scale, x1);
         if (strlen(str) != 0 && !graph_build(str, &point, x1, y2))
             graph();
@@ -480,5 +456,4 @@ void init(int argc, char *argv[]) {
     gtk_widget_show_all(window);
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
     gtk_main();
-    //return 0;
 }
