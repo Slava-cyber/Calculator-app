@@ -36,7 +36,7 @@
 int check_graph(char *str) {
     int result = 0;
     int i = 0;
-    while(str[i] != '\0') {
+    while (str[i] != '\0') {
         if (str[i] == 'x')
             result = 1;
         i += 1;
@@ -73,11 +73,11 @@ double run(char *str, char *str2, int *point) {
     }
     if (error) {
         str_zero(str);
-        strcpy(str, "error");
+        snprintf(str, sizeof(str), "%s", "error");
         *point = 5;
     } else {
         str_zero(str);
-        sprintf(str, "%f", answer);
+        snprintf(str, sizeof(str), "%f", answer);
         *point = strlen(str);
     }
     return answer;
@@ -102,7 +102,7 @@ int graph_build(char *str, int *point, double *x, double *y) {
     }
     if (error) {
         str_zero(str);
-        strcpy(str, "error");
+        snprintf(str, sizeof(str), "%s", "error");
         *point = 5;
     }
     return error;
@@ -122,11 +122,10 @@ stack* parsing(char *str, int *error) {
     *error = 0;
     double number;
     stack* buffer = NULL;
-    stack* notation = NULL;    
+    stack* notation = NULL;
     char *tmp = str;
     value_type_t buffer_value_type;
     while (*tmp != '=' && *tmp != '\0' && !*error) {
-        //printf("%d-%c\n", tmp, *(tmp));
         if (*tmp == ')') {
             right_bracket += 1;
             if (buffer == NULL) {
@@ -135,24 +134,20 @@ stack* parsing(char *str, int *error) {
             }
             while (peek_operation(buffer) != bracket_left && buffer != NULL) {
                 push(&notation, peek_value(buffer), peek_operation(buffer));
-                //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
                 pop(&buffer);
                 if (buffer == NULL) {
                     *error = 1;
                     break;
                 }
             }
-
             if (*error != 1)
                 pop(&buffer);
-            //printf("push:%0.1f-%d||", peek_value(buffer), peek_operation(buffer));
         } else if (digit(*tmp) > -1) {
             *error = form_number(&tmp, &number);
             if (*error)
                 break;
             push(&notation, number, value);
             tmp--;
-            //printf("tmp:%s\n", tmp);
         } else if (*tmp == 'x') {
             push(&notation, 0.0, x);
         } else if (*tmp == '(') {
@@ -161,10 +156,8 @@ stack* parsing(char *str, int *error) {
         } else if (*tmp == '+' && (i == 0 || *(tmp-1) == '(')) {
             push(&buffer, 0.0, unary_plus);
         } else if (*tmp == '-' && (i == 0 || *(tmp-1) == '(')) {
-            //printf("!!!\n");
             push(&buffer, 0.0, unary_minus);
         } else {
-            //printf("operation!\n");
             if (symbol(*tmp) && *tmp != 'x') {
                 if (form_function(&tmp, &buffer_value_type)) {
                     *error = 1;
@@ -176,7 +169,6 @@ stack* parsing(char *str, int *error) {
                 *error = 1;
                 break;
             }
-            //printf("value:%d\n", buffer_value_type);
             if (buffer == NULL) {
                 push(&buffer, 0.0, buffer_value_type);
             } else {
@@ -191,16 +183,11 @@ stack* parsing(char *str, int *error) {
                 }
             }
         }
-        // printf("errorrrrr:%d\n", *error);
         tmp++;
         i++;
-        //printf("%d-%c\n", tmp, *tmp);
-        //printf("BUFFER:%d\n", peek_operation(buffer));
     }
     if (left_bracket != right_bracket || notation == NULL)
         *error = 1;
-
-    //printf("errorrrrrrs:%d\n", *error);
     while (buffer != NULL) {
         push(&notation, peek_value(buffer), peek_operation(buffer));
         pop(&buffer);
@@ -211,38 +198,28 @@ stack* parsing(char *str, int *error) {
 int calculate(stack* notation, double *result, double x_value) {
     int error = 0;
     stack *value = NULL;
-    //printf("tut\n");
     while (notation != NULL && error == 0) {
-        //printf("k");
         value_type_t operation = peek_operation(notation);
-        //printf("operation:%d\n", operation);
         if (operation == -1) {
-            //printf("p");
             push(&value, x_value, -2);
         } else if (operation == -2) {
             push(&value, peek_value(notation), -2);
         } else if (operation >= 2 && operation < 8) {
             action_two_arguments(&value, operation, &error);
-            //printf("errorcalc:%d\n", error);
-            //printf("errorin:%d", error);
         } else {
             action_one_arguments(&value, operation, &error);
         }
         if (error)
             break;
-        //printf("value:%f||", peek_value(value));
         pop(&notation);
     }
     if (!error) {
         *result = peek_value(value);
-    //printf("result:%f\n", *result);
         pop(&value);
         if (value != NULL) {
-       //     printf("tuterror%f\n", peek_value(value));
             error = 1;
         }
     }
-    //printf("errorin:%d\n", error);
     return error;
 }
 
@@ -251,7 +228,7 @@ double action_two_arguments(stack **value, value_type_t operation, int *error) {
     if (*value != NULL) {
         number1 = peek_value(*value);
         pop(value);
-    } else { 
+    } else {
         *error = 1;
     }
     if (*value != NULL) {
@@ -270,7 +247,7 @@ double action_two_arguments(stack **value, value_type_t operation, int *error) {
         } else if (operation == division) {
             result = number2 / number1;
         } else if (operation == power) {
-            result = pow(number2 * 1.0, number1 * 1.0); 
+            result = pow(number2 * 1.0, number1 * 1.0);
         } else if (operation == modulus) {
             result = fmod(number2, number1);
         }
@@ -297,7 +274,7 @@ double action_one_arguments(stack **value, value_type_t operation, int *error) {
         } else if (operation == sine) {
             result = sin(number);
         } else if (operation == tangent) {
-            result = tan(number); 
+            result = tan(number);
         } else if (operation == arc_cosine) {
             result = acos(number);
         } else if (operation == arc_sine) {
@@ -337,7 +314,7 @@ double form_number(char **str, double *number) {
         } else {
             error = 1;
         }
-    } 
+    }
     if (!(operation(**str, &buffer) || **str == ')' || **str == '\0'))
         error = 1;
     return error;
@@ -361,7 +338,7 @@ void push(stack **head, double number, value_type_t oper) {
     if (st == NULL) {
         puts("memory fault");
         exit(-1);
-        //exit(STACK_OVERFLOW);
+        // exit(STACK_OVERFLOW);
     }
     st->next = *head;
     st->value = number;
@@ -389,7 +366,7 @@ value_type_t peek_operation(const stack *head) {
         exit(-1);
     return head->operation;
 }
-  
+
 int prior(value_type_t operation) {
     int flag = 0;
     if (operation == bracket_left) {

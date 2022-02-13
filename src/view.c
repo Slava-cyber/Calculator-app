@@ -17,13 +17,13 @@
     GtkWidget *windowGraph;
     GtkWidget *scaleUp;
     GtkWidget *scaleDown;
-    
+
     char str[300] = "\0";
     char str2[300] = "\0";
     int point = 0;
     int x_status;
-    double x1[numberpoints];
-    double y2[numberpoints];
+    double x1[2001];
+    double y2[2001];
     double scale = 100;
 
 void scaleUp_clicked(GtkWidget *button, gpointer *data) {
@@ -56,7 +56,7 @@ double scale_y(int height) {
 }
 
 char *push_char(char *first, char *second, int *point) {
-    while(*second != '\0' && *point < 300) {
+    while (*second != '\0' && *point < 300) {
         first[*point] = *second;
         *point += 1;
         second++;
@@ -109,7 +109,8 @@ void many_char_operation(char *str, char *value, int *point) {
     char buffer[2] = "\0\0";
     if (*point != 0) {
         if (str[*point - 1] != '+' && str[*point - 1] != '-' && str[*point - 1] != '*' &&
-            str[*point - 1] != '/' && str[*point - 1] != '^' && str[*point - 1] != '%' && str[*point - 1] != '(') {
+            str[*point - 1] != '/' && str[*point - 1] != '^' && str[*point - 1] != '%' &&
+            str[*point - 1] != '(') {
             buffer[0] = '*';
             push_char(str, buffer, point);
         }
@@ -122,7 +123,7 @@ void many_char_operation(char *str, char *value, int *point) {
 void draw_axes(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 1);
-    // оси координат    
+    // оси координат
     cairo_move_to(cr, x_shift, (height - y_shift) / 2);
     cairo_line_to(cr, width, (height - y_shift) / 2);
     cairo_move_to(cr, (width + x_shift) / 2, 0);
@@ -178,9 +179,9 @@ void draw_value(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
 
     char textY[10][20], textX[10][20];
     for (int i = 0; i < 10; i++) {
-        sprintf(textY[i], "%.2e", scaleYstart);
+        snprintf(textY[i], sizeof(textY[i]), "%.2e", scaleYstart);
         scaleYstart += scaleYstep;
-        sprintf(textX[i], "%.2f", scaleXstart);
+        snprintf(textX[i], sizeof(textX[i]), "%.2f", scaleXstart);
         scaleXstart += scaleXstep;
     }
 
@@ -219,7 +220,7 @@ void graph() {
         // create fixed
         fixedGraph = gtk_fixed_new();
         gtk_container_add(GTK_CONTAINER(windowGraph), fixedGraph);
-        
+
         /* создать виджет - область для рисования   */
         drawing_area = gtk_drawing_area_new();
         gtk_widget_set_size_request(drawing_area, width, height - 100);
@@ -231,7 +232,7 @@ void graph() {
         g_signal_connect(G_OBJECT(scaleUp), "clicked", G_CALLBACK(scaleUp_clicked), NULL);
         gtk_widget_set_size_request(scaleUp, width/2, 100);
         gtk_fixed_put(GTK_FIXED(fixedGraph), scaleUp, 0, height - 100);
-        
+
         // button ScaleDown
         scaleDown = gtk_button_new_with_label("scale-");
         g_signal_connect(G_OBJECT(scaleDown), "clicked", G_CALLBACK(scaleDown_clicked), NULL);
@@ -257,7 +258,8 @@ void form_x_points(double scale, double *x) {
 
 void button_clicked(GtkWidget *button) {
     char value[5] = "\0\0\0\0\0";
-    strcpy(value, gtk_button_get_label((GtkButton*)button));
+    // strcpy(value, gtk_button_get_label((GtkButton*)button));
+    snprintf(value, sizeof(value), "%s", gtk_button_get_label((GtkButton*)button));
     if (strcmp(value, "=") == 0) {
         if (strlen(str) != 0) {
             if (check_graph(str) == 0) {
@@ -266,13 +268,15 @@ void button_clicked(GtkWidget *button) {
                 x_status = 0;
             } else if (x_status == 0) {
                 str_zero(str2);
-                strcpy(str2, str);
+                // strcpy(str2, str);
+                snprintf(str2, sizeof(str2), "%s", str);
                 str_zero(str);
                 point = 0;
                 x_status += 1;
             } else {
                 str_zero(str);
-                strcpy(str, "error");
+                // strcpy(str, "error");
+                snprintf(str, sizeof(str), "%s", "error");
                 point = 5;
                 str_zero(str2);
                 x_status = 0;
@@ -295,7 +299,8 @@ void button_clicked(GtkWidget *button) {
     gtk_label_set_label((GtkLabel*)label, str);
 }
 
-void create_digit_button(GtkWidget **buttonDigits, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+void create_digit_button(GtkWidget **buttonDigits, int width, int height,
+                         int SizeButton, int SizeSpace, GtkWidget *fixed) {
     char* title[11] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "."};
     int positionX = width - 4 * SizeButton - 3 * SizeSpace;
     int positionY = height - 4 * SizeButton - 3 * SizeSpace;
@@ -314,7 +319,8 @@ void create_digit_button(GtkWidget **buttonDigits, int width, int height, int Si
     }
 }
 
-void create_function_button(GtkWidget **buttonFunctions, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+void create_function_button(GtkWidget **buttonFunctions, int width, int height,
+                            int SizeButton, int SizeSpace, GtkWidget *fixed) {
     char* title[9] = {"cos", "sin", "tan", "acos", "asin", "atan", "sqrt", "ln", "log"};
     int positionX = width - 7 * SizeButton - 6 * SizeSpace;
     int positionY = height - 3 * SizeButton - 2 * SizeSpace;
@@ -333,7 +339,8 @@ void create_function_button(GtkWidget **buttonFunctions, int width, int height, 
     }
 }
 
-void create_operation_button(GtkWidget **buttonOperations, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+void create_operation_button(GtkWidget **buttonOperations, int width, int height,
+                             int SizeButton, int SizeSpace, GtkWidget *fixed) {
     char* title[6] = {"^", "%", "/", "*", "+", "-"};
     int positionX = width - 4 * SizeButton - 3 * SizeSpace;
     int positionY = height - 5 * SizeButton - 4 * SizeSpace;
@@ -344,18 +351,19 @@ void create_operation_button(GtkWidget **buttonOperations, int width, int height
         gtk_widget_set_size_request(button, SizeButton, SizeButton);
         gtk_fixed_put(GTK_FIXED(fixed), button, positionX, positionY);
         buttonOperations[i] = button;
-        if (i < 2) 
+        if (i < 2)
             positionX += SizeButton + SizeSpace;
         if (i == 1) {
             positionX = width - SizeButton;
-            positionY = height - 4 * SizeButton - 3 * SizeSpace; 
+            positionY = height - 4 * SizeButton - 3 * SizeSpace;
         }
         if (i > 1)
             positionY += SizeButton + SizeSpace;
     }
 }
 
-void create_brackets_button(GtkWidget **buttonBrackets, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+void create_brackets_button(GtkWidget **buttonBrackets, int width, int height,
+                            int SizeButton, int SizeSpace, GtkWidget *fixed) {
     char* title[2] = {"(", ")"};
     int positionX = width - 7 * SizeButton - 6 * SizeSpace;
     int positionY = height - 4 * SizeButton - 3 * SizeSpace;
@@ -370,7 +378,8 @@ void create_brackets_button(GtkWidget **buttonBrackets, int width, int height, i
     }
 }
 
-void create_delete_button(GtkWidget *buttonDelete, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+void create_delete_button(GtkWidget *buttonDelete, int width, int height,
+                          int SizeButton, int SizeSpace, GtkWidget *fixed) {
     int positionX = width -  SizeButton;
     int positionY = height - 5 * SizeButton - 4 * SizeSpace;
     buttonDelete = gtk_button_new_with_label("AC");
@@ -379,7 +388,8 @@ void create_delete_button(GtkWidget *buttonDelete, int width, int height, int Si
     gtk_fixed_put(GTK_FIXED(fixed), buttonDelete, positionX, positionY);
 }
 
-void create_deleteAll_button(GtkWidget *buttonDelete, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+void create_deleteAll_button(GtkWidget *buttonDelete, int width, int height,
+                             int SizeButton, int SizeSpace, GtkWidget *fixed) {
     int positionX = width -  2 * SizeButton - SizeSpace;
     int positionY = height - 5 * SizeButton - 4 * SizeSpace;
     buttonDelete = gtk_button_new_with_label("EC");
@@ -388,7 +398,8 @@ void create_deleteAll_button(GtkWidget *buttonDelete, int width, int height, int
     gtk_fixed_put(GTK_FIXED(fixed), buttonDelete, positionX, positionY);
 }
 
-void create_equal_button(GtkWidget *buttonEqual, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+void create_equal_button(GtkWidget *buttonEqual, int width, int height,
+                         int SizeButton, int SizeSpace, GtkWidget *fixed) {
     int positionX = width - 2 * SizeButton - SizeSpace;
     int positionY = height - SizeButton;
     buttonEqual = gtk_button_new_with_label("=");
@@ -397,7 +408,8 @@ void create_equal_button(GtkWidget *buttonEqual, int width, int height, int Size
     gtk_fixed_put(GTK_FIXED(fixed), buttonEqual, positionX, positionY);
 }
 
-void create_x_button(GtkWidget *buttonX, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+void create_x_button(GtkWidget *buttonX, int width, int height, int SizeButton,
+                     int SizeSpace, GtkWidget *fixed) {
     int positionX = width - 5 * SizeButton - 4* SizeSpace;
     int positionY = height - 4 * SizeButton - 3 * SizeSpace;
     buttonX = gtk_button_new_with_label("x");
@@ -406,7 +418,8 @@ void create_x_button(GtkWidget *buttonX, int width, int height, int SizeButton, 
     gtk_fixed_put(GTK_FIXED(fixed), buttonX, positionX, positionY);
 }
 
-void create_empty_button(GtkWidget *buttonEmpty, int width, int height, int SizeButton, int SizeSpace, GtkWidget *fixed) {
+void create_empty_button(GtkWidget *buttonEmpty, int width, int height,
+                         int SizeButton, int SizeSpace, GtkWidget *fixed) {
     int positionX = width - 7 * SizeButton - 6 * SizeSpace;
     int positionY = height - 5 * SizeButton - 4 * SizeSpace;
     buttonEmpty = gtk_button_new_with_label("f(x)");
@@ -418,7 +431,7 @@ void create_empty_button(GtkWidget *buttonEmpty, int width, int height, int Size
 void init(int argc, char *argv[]) {
     int width = 724, height = 700;
     int SizeButton = 100, SizeSpace = 4;
-    // create window    
+    // create window
     gtk_init(&argc, &argv);
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Calculator");
@@ -431,7 +444,7 @@ void init(int argc, char *argv[]) {
     label = gtk_label_new(str);
     gtk_widget_set_size_request(label, width, height - 5 * SizeButton - 5 * SizeSpace);
     gtk_fixed_put(GTK_FIXED(fixed), label, 0, 0);
-    // create buttons 
+    // create buttons
     create_digit_button(buttonDigits, width, height, SizeButton, SizeSpace, fixed);
     create_equal_button(buttonEqual, width, height, SizeButton, SizeSpace, fixed);
     create_function_button(buttonFunctions, width, height, SizeButton, SizeSpace, fixed);
