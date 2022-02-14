@@ -45,10 +45,11 @@ typedef struct stack {
 
     // calc.c
 void push(stack **head, double number, value_type_t oper);
-stack* pop(stack **head);
+void pop(stack **head);
 double peek_value(const stack *head);
 value_type_t peek_operation(const stack *head);
 stack* reverse_stack(stack *first);
+void delete_stack(stack **head);
 
 double form_number(char **str, double *number);
 int prior(value_type_t operation);

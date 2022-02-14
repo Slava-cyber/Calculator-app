@@ -22,16 +22,24 @@
 //     printf("error:%d\n", error);
 //     return 0;
 // }
+    // while(result != NULL) {
+    //     printf("value:%f-opeartion:%d", peek_value(result), peek_operation(result));
+    //     pop(&result);
+    // }
 
-    // char str4[] = "+5+1.2+sin(3)";
-    // char str3[] = "3";
-    // int point3 = 4;
+//     char str4[] = "+3++";
+//     char str3[] = "3";
+//     int point3 = 4;
 
 // int main() {
 //     run(str4, str3, &point3);
 //     return 1;
 // }
 
+void delete_stack(stack **head) {
+    while (*head != NULL)
+        pop(head);
+}
 
 int check_graph(char *str) {
     int result = 0;
@@ -60,14 +68,19 @@ double run(char *str, char *str2, int *point) {
     result = reverse_stack(notation);
     if (!error) {
         error = calculate(result, &answer, 0);
+    } else {
+        delete_stack(&result);
     }
     // printf("\nerror2:%d\n", error);
     if (check_graph(str2) && !error) {
         double answer2 = 0;
         notation = parsing(str2, &error);
         result = reverse_stack(notation);
-        if (!error)
+        if (!error) {
             error = calculate(result, &answer2, answer);
+        } else {
+            delete_stack(&result);
+        }
         if (!error)
             answer = answer2;
     }
@@ -93,6 +106,8 @@ int graph_build(char *str, int *point, double *x, double *y) {
             result = reverse_stack(notation);
             if (!error) {
                 error += calculate(result, &y[i], x[i]);
+            } else {
+                delete_stack(&result);
             }
             if (error)
                 break;
@@ -220,6 +235,10 @@ int calculate(stack* notation, double *result, double x_value) {
             error = 1;
         }
     }
+    while (value != NULL)
+        pop(&value);
+    while (notation != NULL)
+        pop(&notation);
     return error;
 }
 
@@ -346,13 +365,13 @@ void push(stack **head, double number, value_type_t oper) {
     *head = st;
 }
 
-stack* pop(stack **head) {
+void pop(stack **head) {
     stack *out;
     if ((*head) == NULL)
         exit(-1);
     out = *head;
     *head = (*head)->next;
-    return out;
+    free(out);
 }
 
 double peek_value(const stack *head) {

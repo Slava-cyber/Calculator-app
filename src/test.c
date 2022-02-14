@@ -118,7 +118,7 @@ START_TEST(test_calc_14) {
 END_TEST
 
 START_TEST(test_calc_15) {
-  char givenStr[300] = "+";
+  char givenStr[300] = "+3++";
   double result = 0;
   double resultPN = run(givenStr, str3, &point2);
   ck_assert_double_eq(resultPN, result);
