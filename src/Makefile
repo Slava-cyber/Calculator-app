@@ -1,10 +1,5 @@
 all: clean calc
 
-debug:
-	gcc calc.c `pkg-config --cflags --libs gtk+-3.0` -o ./a.out
-#	CK_FORK=no leaks --atExit -- ./a.out
-	./a.out
-
 calc: 
 	gcc view.c controller.c calc.c `pkg-config --cflags --libs gtk+-3.0` -o calc
 	./calc

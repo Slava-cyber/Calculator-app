@@ -1,41 +1,5 @@
 #include "calc.h"
 
-// int main() {
-//     stack* result = NULL;
-//     stack* notation = NULL;
-//     double number = 0, answer;
-//     char *str = (char*)malloc(100*sizeof(char));
-//     int error;
-//     input(str);
-//     printf("str:%s\n", str);
-//     notation = parsing(str, &error);
-//         //printf("answer:%f\n", answer);
-//     printf("error:%d\n", error);
-//     printf("\n|||||||||||||||||\n");
-//     result = reverse_stack(notation);
-//     error = calculate(result, &answer);
-//     // while (result != NULL) {
-//     //     printf("%.1f-%d||", peek_value(result), peek_operation(result));
-//     //     pop(&result);
-//     // }
-//     printf("answer:%f\n", answer);
-//     printf("error:%d\n", error);
-//     return 0;
-// }
-    // while(result != NULL) {
-    //     printf("value:%f-opeartion:%d", peek_value(result), peek_operation(result));
-    //     pop(&result);
-    // }
-
-//     char str4[] = "+3++";
-//     char str3[] = "3";
-//     int point3 = 4;
-
-// int main() {
-//     run(str4, str3, &point3);
-//     return 1;
-// }
-
 void delete_stack(stack **head) {
     while (*head != NULL)
         pop(head);
