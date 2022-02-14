@@ -147,14 +147,18 @@ void draw_graph(cairo_t *cr, int width, int height, int x_shift, int y_shift) {
     cairo_set_line_width(cr, 0.5);
     int line = 0;
     for (int i = 0; i < numberpoints; i++) {
+        double y = (height - y_shift) / 2 - y2[i] / (x_step / 7);
         // g_print("i:%d-x:%f-y:%f\n", i, x_start, y2[i]);
-        if (isnan(y2[i]) == 0 && isinf(y2[i]) == 0) {
+        if (isnan(y2[i]) == 0 && isinf(y2[i]) == 0 /* && y < 550 && y > 0 */) {
             if (line == 0) {
                 cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
+                // cairo_move_to(cr, x_start, y);
                 line = 1;
             } else {
                 cairo_move_to(cr, x_start, (height - y_shift) / 2 - y2[i] * y_step);
+                // cairo_move_to(cr, x_start, y);
                 cairo_line_to(cr, x_start - x_step, (height - y_shift) / 2 - y2[i - 1] * y_step);
+                // cairo_line_to(cr, x_start - x_step, (height - y_shift) / 2 - y2[i - 1] / (x_step / 7));
             }
         } else {
             line = 0;
