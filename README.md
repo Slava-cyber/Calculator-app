@@ -6,6 +6,7 @@ The russian version of the task can be found in the repository.
 
 
 ## Contents
+
 0. [Preamble](#preamble)
 1. [Chapter I](#chapter-i) \
    1.1. [Introduction](#introduction)
@@ -21,6 +22,8 @@ The russian version of the task can be found in the repository.
 
 ![SmartCalc](misc/eng/images/smartcalc.jpg)
 
+Planet Earth, USA, California, Cupertino, 10260 Bandley Drive, August 5, 1983.
+
 Muffled footsteps quickly approached the room. It was strange, as if the person walking was barefoot. A sudden stop at the door, some inarticulate dialogue apparently with a passerby... the door opens and he enters. As he looks around the room on the go, he quickly grabs a few people out of the crowd that was discussing something and gestured them to follow him.
 
 He speaks as he goes:
@@ -35,7 +38,7 @@ He speaks as he goes:
 
 *-- That's why I'm giving you another week! Where's Chris? Has anyone seen him?*
 
-Chris Espinosa was outside the door in his office and heard that Jobs was looking for him. The fifth version of the Macintosh calculator had already been written, and he had a feeling that this was just the beginning. Except his morale was about to run out! Suddenly he heard somebody saying "he seems to be in his office" and then the swift footsteps of bunch of people rushed in Chris's direction. Fear took hold of him for a moment, but he quickly pulled himself together and came to his senses. After all, it was just a calculator! The door opened and Jobs entered the room, while the rest of people stayed behind the office.
+Chris Espinosa was outside the door in his office and heard that Jobs was looking for him. The fifth version of the Macintosh calculator had already been written, and he had a feeling that this was just the beginning. Except his morale was about to run out! Suddenly he heard somebody saying *"he seems to be in his office"* and then the swift footsteps of bunch of people rushed in Chris's direction. Fear took hold of him for a moment, but he quickly pulled himself together and came to his senses. After all, it was just a calculator! The door opened and Jobs entered the room, while the rest of people stayed behind the office.
 
 *-- Chris, how's our calculator doing?*
 
@@ -121,7 +124,7 @@ The RPN was used in the soviet engineering calculator B3-19M (a joint developmen
 
 Reverse Polish notation had all the advantages of the progenitor because it removes the need for parentheses which allows to reduce the volume of expressions. This had led to a decrease in the number of commands, when writing computer programs. That is why sometimes Reverse Polish notation is called Reverse bracketless notation.
 
-The expression written in Reverse Polish  (bracketless) notation:
+The expression written in Reverse Polish (bracketless) notation:
 
 > 2 3 2 + / 5 *
 
@@ -170,15 +173,21 @@ End.
 
 The SmartCalc v1.0 program must be implemented:
 
-- The program must be developed in C language of C11 standard using gcc compiler
+- The program must be developed in C language of C11 standard using gcc compiler. You can use any additional QT libraries and modules
 - The program code must be located in the src folder
-- The program must be built with Makefile which contains standard set of targets for GNU-programs: all, install, uninstall, clean, distclean, mostyclean, realclean, TAGS, info, dvi, dist. Installation directory must be /opt/smartcalc/v1.0
+- The program must be built with Makefile which contains standard set of targets for GNU-programs: all, install, uninstall, clean, dvi, dist, tests, gcov. Installation directory could be arbitrary, except the building one
 - The program must be developed according to the principles of structured programming
-- Prepare full coverage of modules related to calculating expressions with unit-tests
+- Prepare full coverage of modules related to calculating expressions with unit-tests using the Check library
 - GUI implementation, based on any GUI library with API for C89/C99/C11 (GTK+, Nuklear, raygui, microui, libagar, libui, IUP, LCUI, CEF, Qt, etc.)
+- Both integers and real numbers with a dot can be input into the program. You can optionally provide the input of numbers in exponential notation
+- The calculation must be done after you complete entering the calculating expression and press the `=` symbol.
 - Calculating arbitrary bracketed arithmetic expressions in infix notation
 - Calculate arbitrary bracketed arithmetic expressions in infix notation with substitution of the value of _x_
 - Plotting a graph of a function given by an expression in infix notation with the variable _x_ (with coordinate axes, mark of the used scale and an adaptive grid)
+    - It is not necessary to provide the user with the ability to change the scale
+- Domain and codomain of a function are limited to at least numbers from -1000000 to 1000000
+- Verifiable accuracy of the fractional part is at least to 7 decimal places
+- Users must be able to enter up to 255 characters
 - Bracketed arithmetic expressions in infix notation must support the following arithmetic operations and mathematical functions:
     - **Arithmetic operators**:
 
@@ -203,7 +212,7 @@ The SmartCalc v1.0 program must be implemented:
       | Computes tangent | tan(x) |
       | Computes arc cosine | acos(x) |
       | Computes arc sine | asin(x) |
-      | Computes arc tangent | sqrt(x) |
+      | Computes arc tangent | atan(x) |
       | Computes square root | sqrt(x) |
       | Computes natural logarithm | ln(x) |
       | Computes common logarithm | log(x) |
